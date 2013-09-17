@@ -5,19 +5,101 @@ xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet>
-		<servlet-name>Login</servlet-name>
-		<servlet-class>net.mrcullen.coursework.LoginServlet</servlet-class>
+		<servlet-name>TeacherServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.TeacherServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-	    <servlet-name>Login</servlet-name>
-	    <url-pattern>/coursework_tracking</url-pattern>
+	    <servlet-name>TeacherServlet</servlet-name>
+	    <url-pattern>/api/teacher/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>FormServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.FormServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>FormServlet</servlet-name>
+	    <url-pattern>/api/form/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>SubjectServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.SubjectServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>SubjectServlet</servlet-name>
+	    <url-pattern>/api/subject/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>PupilServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.PupilServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>PupilServlet</servlet-name>
+	    <url-pattern>/api/pupil/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>PupilTargetServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.PupilTargetServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>PupilTargetServlet</servlet-name>
+	    <url-pattern>/api/target/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>TargetProgressServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.TargetProgressServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>TargetProgressServlet</servlet-name>
+	    <url-pattern>/api/progress/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ResetServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.ResetServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>ResetServlet</servlet-name>
+	    <url-pattern>/reset.html</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>RegisterPageServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.RegisterPageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>RegisterPageServlet</servlet-name>
+	    <url-pattern>/register.html</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>PupilPageServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.PupilPageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>PupilPageServlet</servlet-name>
+	    <url-pattern>/pupil</url-pattern>
 	</servlet-mapping>
 	<filter>
-    <filter-name>ObjectifyFilter</filter-name>
+	    <filter-name>ObjectifyFilter</filter-name>
         <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
 	</filter>
 	<filter-mapping>
         <filter-name>ObjectifyFilter</filter-name>
         <url-pattern>/*</url-pattern>
+   	</filter-mapping>
+	
+	<filter>
+	    <filter-name>AuthenticationFilter</filter-name>
+        <filter-class>net.mrcullen.targetrecording.filters.UserAuthentication</filter-class>
+        <init-param>
+    		<param-name>RegistrationPage</param-name>
+    		<param-value>/register.html</param-value>
+  		</init-param>
+	</filter>
+	<filter-mapping>
+        <filter-name>AuthenticationFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+        <url-pattern>/pupil/*</url-pattern>
 	</filter-mapping>
+	
+	<welcome-file-list>
+	    <welcome-file>index.html</welcome-file>
+	</welcome-file-list>
 </web-app>
