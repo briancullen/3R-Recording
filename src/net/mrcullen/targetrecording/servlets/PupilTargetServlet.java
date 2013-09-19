@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.datastore.KeyFactory;
+import java.util.HashMap;
 import com.googlecode.objectify.Key;
 
 import net.mrcullen.targetrecording.GsonService;
@@ -70,6 +70,15 @@ public class PupilTargetServlet extends HttpServlet {
 			return;				
 		}
 
+		HashMap parameters = new HashMap();
+		parameters.put("keyStage", keyStage);
+		parameters.put("subject", subjectKey);
+		if (!PupilTargetInformation.findTargetInformationByPupil(pupil, parameters).isEmpty())
+		{
+			resp.sendError(HttpServletResponse.SC_CONFLICT);
+			return;										
+		}
+		
 
 		PupilTargetEntity newTarget = new PupilTargetEntity(pupil, subject, keyStage);
 		if (!newTarget.setTargetGrades(threeLevels, fourLevels, fiveLevels))

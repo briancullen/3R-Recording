@@ -35,6 +35,7 @@ public class GsonService {
 				  JsonObject objResult = new JsonObject(); 
 				  objResult.addProperty("id", ((SubjectEntity)src.get()).getSubjectId());
 				  objResult.addProperty("name", ((SubjectEntity)src.get()).getName());
+				  objResult.addProperty("vocational", ((SubjectEntity)src.get()).isVocational());
 				  objResult.addProperty("key", KeyFactory.keyToString(refKey));
 				  result = objResult;
 			  }

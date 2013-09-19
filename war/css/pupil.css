@@ -3,5 +3,9 @@
 table#pupilRecordTable { display: table; } 
 table .centerColumn { text-align: center; }
 
-#manageTargetsPage div.ui-grid-a > div { padding: 10px; }
-#manageTargetsPage div.ui-grid-a:first-child { max-width: 700px; }
+#manageTargetsPage div.ui-grid-a>div { padding: 10px; }
+#manageTargetsPage div.ui-grid-a div.ui-block-a { width: 35%; }
+#manageTargetsPage div.ui-grid-a div.ui-block-b { width: 65%; }
+
+#manageTargetsPopupSubjectList { max-height: 300px; overflow-y: auto; }
+.seperateItems { margin-bottom: 20px; }

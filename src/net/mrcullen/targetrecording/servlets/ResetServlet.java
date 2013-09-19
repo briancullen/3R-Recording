@@ -11,7 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.googlecode.objectify.Key;
 
 import net.mrcullen.targetrecording.GsonService;
+import net.mrcullen.targetrecording.entities.FormEntity;
+import net.mrcullen.targetrecording.entities.SubjectEntity;
 import net.mrcullen.targetrecording.entities.TeacherEntity;
+import net.mrcullen.targetrecording.process.FormInformation;
+import net.mrcullen.targetrecording.process.SubjectInformation;
 import net.mrcullen.targetrecording.process.TeacherInformation;
 
 @SuppressWarnings("serial")
@@ -45,6 +49,27 @@ public class ResetServlet extends HttpServlet {
 			TeacherEntity teacher = new TeacherEntity ("bcullen@rossettlearning.co.uk", "Mr B Cullen", "cl", true);
 			Key<TeacherEntity> key = TeacherInformation.saveTeacher(teacher);
 			resp.getWriter().print(GsonService.keyToJson(key));
+			
+			FormEntity form = new FormEntity ("EV", 2010);
+			FormInformation.saveForm(form);
+			
+			FormEntity form1 = new FormEntity ("CL", 2008);
+			FormInformation.saveForm(form1);
+			
+			FormEntity form2 = new FormEntity ("CT", 2012);
+			FormInformation.saveForm(form2);
+			
+			SubjectEntity subject = new SubjectEntity ("Cambridge Tech", true);
+			SubjectInformation.saveSubject(subject);
+			
+			subject = new SubjectEntity ("English", false);
+			SubjectInformation.saveSubject(subject);
+			
+			subject = new SubjectEntity ("Biology", false);
+			SubjectInformation.saveSubject(subject);
+			
+			subject = new SubjectEntity ("BTEC Sport", true);
+			SubjectInformation.saveSubject(subject);
 		}
 	}	
 }

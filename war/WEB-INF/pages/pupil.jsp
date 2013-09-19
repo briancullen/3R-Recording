@@ -87,12 +87,66 @@
 		<div data-role="content">
 			<div class="ui-grid-a">
 				<div class="ui-block-a">
-						<ul id="manageTargetsSubjectList" data-role="listview" data-filter="true"
-							data-filter-placeholder="Search subjects..." data-inset="true">
-						</ul>
+					<fieldset id="manageTargetsKeyStage" style="text-align: center;" data-role="controlgroup" data-type="horizontal" >
+	        			<input type="radio" name="manageTargetsKeyStage" id="manageTargetsKeyStage3" value="3" checked="checked">
+	        			<label for="manageTargetsKeyStage3">KS3</label>
+	        			<input type="radio" name="manageTargetsKeyStage" id="manageTargetsKeyStage4" id="radio-choice-d" value="4">
+	        			<label for="manageTargetsKeyStage4">KS4</label>
+	        			<input type="radio" name="manageTargetsKeyStage" id="manageTargetsKeyStage5" id="radio-choice-e" value="5">
+	        			<label for="manageTargetsKeyStage5">KS5</label>
+					</fieldset>
+					<div class="seperateItems">
+						<a data-role="button" href="#manageTargetAddSubjectPopup" data-position-to="window" data-rel="popup" id="manageTargetsAddBtn" data-icon="plus">Add Target</a>
+					</div>
+					<ul id="manageTargetsSubjectList" data-role="listview" data-filter="true"
+						data-filter-placeholder="Search subjects..." data-inset="true">
+						
+					</ul>
 				</div>
-				<div class="ui-block-b">Doooomed I tell you!</div>
+				<div class="ui-block-b">
+					<div style="display:none;" id="manageTargetNotFoundBanner" class="ui-bar ui-bar-e">
+						<h3>No records found for the specified criteria - please try again.</h3>
+					</div>
+					
+					<form id="manageTargetForm">
+						<div data-role="fieldcontain">
+						    <label for="manageTarget3Levels">3 LevelsTarget:</label>
+							<select name="ThreeLevelsTarget" id="manageTarget3Levels" data-mini="true">
+							</select>
+						</div>
+						<div data-role="fieldcontain">
+						    <label for="manageTarget4Levels">4 Levels Target:</label>
+							<select name="FourLevelsTarget" id="manageTarget4Levels" data-mini="true">
+							</select>
+						</div>
+						<div data-role="fieldcontain">
+						    <label for="manageTarget5Levels">5 Levels Target:</label>
+							<select name="FiveLevelsTarget" id="manageTarget5Levels" data-mini="true">
+							</select>
+						</div>
+						<fieldset class="ui-grid-a">
+    						<div class="ui-block-c"><a data-role="button" id="manageTargetsUpdate">Update</a></div>
+    						<div class="ui-block-d"><a data-role="button" id="manageTargetsRemove">Remove</a></div>
+						</fieldset>
+					</form>
+					
 				</div>
+			</div>
+			<div data-role="popup" id="manageTargetAddSubjectPopup" data-dismissible="false" data-theme="d" data-overlay-theme="b" style="max-width:360px;">
+				<div data-role="header">
+				    <h3>Select Subject</h3>
+				</div>
+				<div data-role="content">
+					<div class="seperateItems">
+				    	<p>Please select the subject for which you wish to enter a target.</p>
+				    </div>
+
+					<ul id="manageTargetsPopupSubjectList" data-role="listview" data-filter="true"
+						data-filter-placeholder="Search subjects..." data-inset="true">
+					</ul>
+				    <a data-role="button" data-theme="b" data-rel="back">Cancel</a>
+			    </div>
+			</div>
 		</div>
 	</div>
 	
@@ -101,7 +155,8 @@
 		var pupilInformation = { displayName: "${UserEntity.name}",
 		                         email: "${UserEmail}",
 	                         	 form: "${UserEntity.form.value.formCode}",
-		                         year: "${UserEntity.form.value.yearGroup}", 
+		                         year: "${UserEntity.form.value.yearGroup}",
+		                         keyStage: "${UserEntity.form.value.keyStage}",
 		                         key: "${UserEntityKey}" };
 		$('#pupilRecordsPage').on("pageinit", initialise());
 		$('#manageTargetsPage').on("pageinit", initialiseManageTargetPage);

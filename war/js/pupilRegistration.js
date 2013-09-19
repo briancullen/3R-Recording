@@ -2,7 +2,7 @@ function saveTargetRecord()
 {
 	$.post ('/register.html', $('#studentRegistrationForm').serialize(),
 		function (data) {
-			
+			alert("You have now registered with the site.")
 	}, "json").fail(function () { alert("Unable to save the record!"); });
 }
 

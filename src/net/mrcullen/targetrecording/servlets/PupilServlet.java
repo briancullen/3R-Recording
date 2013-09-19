@@ -175,8 +175,8 @@ public class PupilServlet extends HttpServlet {
 						
 						if (subjectParam != null)
 						{
-							long subjectId = Long.parseLong(subjectParam);
-							targetParams.put("subject", Key.create(SubjectEntity.class, subjectId));
+							Key<SubjectEntity> subjectId = UrlPathHelper.getKeyFromPath(subjectParam, SubjectEntity.class.getSimpleName());
+							targetParams.put("subject", subjectId);
 						}
 					}
 					catch (Exception ex) {	}
@@ -216,8 +216,8 @@ public class PupilServlet extends HttpServlet {
 						
 						if (subjectParam != null)
 						{
-							long subjectId = Long.parseLong(subjectParam);
-							targetParams.put("subject", Key.create(SubjectEntity.class, subjectId));
+							Key<SubjectEntity> subjectId = UrlPathHelper.getKeyFromPath(subjectParam, SubjectEntity.class.getSimpleName());
+							targetParams.put("subject", subjectId);
 						}
 						
 						if (recordType != null)
