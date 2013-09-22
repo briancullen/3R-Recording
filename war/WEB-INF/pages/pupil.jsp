@@ -10,7 +10,7 @@
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
 	
 	<script src="/js/Grades.js"></script>
-	<script src="/js/DataStore.js"></script>
+	<script src="/js/pupil/DataStore.js"></script>
 	<script src="/js/pupil/ManageTargets.js"></script>
 	<script src="/js/pupil/ManageProgress.js"></script>
 	
@@ -52,6 +52,9 @@
 		     <tbody>
 		     </tbody>
 		    </table>
+		    <div style="display:none;" id="manageProgressNotFoundBanner" class="ui-bar ui-bar-e">
+				<h3>No records found for the specified criteria - please try again.</h3>
+			</div>
 			<div data-role="popup" id="pupilRecordsYearPopup" data-dismissible="false" data-theme="d" data-overlay-theme="b" style="max-width:360px;">
 				<div data-role="header">
 				    <h3>View Record</h3>

@@ -1,0 +1,12 @@
+@CHARSET "ISO-8859-1";
+
+#manageFormsPage div.ui-grid-a>div { padding: 10px; }
+#manageFormsPage div.ui-grid-a div.ui-block-a { width: 35%; }
+#manageFormsPage div.ui-grid-a div.ui-block-b { width: 65%; }
+
+#manageSubjectsPage div.ui-grid-a>div { padding: 10px; }
+#manageSubjectsPage div.ui-grid-a div.ui-block-a { width: 35%; }
+#manageSubjectsPage div.ui-grid-a div.ui-block-b { width: 65%; }
+
+
+.seperateItems { margin-bottom: 20px; }

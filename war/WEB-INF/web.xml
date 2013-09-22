@@ -76,6 +76,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	    <servlet-name>PupilPageServlet</servlet-name>
 	    <url-pattern>/pupil</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>TeacherPageServlet</servlet-name>
+		<servlet-class>net.mrcullen.targetrecording.servlets.TeacherPageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>TeacherPageServlet</servlet-name>
+	    <url-pattern>/teacher</url-pattern>
+	</servlet-mapping>
 	<filter>
 	    <filter-name>ObjectifyFilter</filter-name>
         <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
@@ -97,6 +105,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
         <filter-name>AuthenticationFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
         <url-pattern>/pupil/*</url-pattern>
+        <url-pattern>/teacher/*</url-pattern>
 	</filter-mapping>
 	
 	<welcome-file-list>

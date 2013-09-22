@@ -1,7 +1,10 @@
 package net.mrcullen.targetrecording.servlets;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -13,7 +16,9 @@ import com.googlecode.objectify.Key;
 
 import net.mrcullen.targetrecording.GsonService;
 import net.mrcullen.targetrecording.UrlPathHelper;
+import net.mrcullen.targetrecording.entities.FormEntity;
 import net.mrcullen.targetrecording.entities.SubjectEntity;
+import net.mrcullen.targetrecording.process.FormInformation;
 import net.mrcullen.targetrecording.process.SubjectInformation;
 
 @SuppressWarnings("serial")
@@ -29,25 +34,63 @@ public class SubjectServlet extends HttpServlet {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		
-		String subjectName = req.getParameter("SubjectName");
-		String subjectVocational = req.getParameter("SubjectVocational");
+		String json = "[ ]";
 
+		if (req.getParameter("BulkSubjectCSVData") != null)
+		{
+			ArrayList<SubjectEntity> list = new ArrayList<SubjectEntity> ();
+			StringTokenizer tokens = new StringTokenizer (req.getParameter("BulkSubjectCSVData"),"[,\n\r]+");
+			
+			try {
+				while (tokens.hasMoreTokens()) {
+					Key<SubjectEntity> key = createSubjectEntity(tokens.nextToken(), tokens.nextToken());
+					if (key == null)
+						throw new Exception ();
+					
+					list.add(SubjectInformation.getSubject(key));
+				}
+			} catch (Exception e) {
+				Iterator<SubjectEntity> items = list.iterator();
+				while (items.hasNext())
+				{
+					Key<SubjectEntity> key = Key.create(items.next());
+					SubjectInformation.removeSubject(key);
+					resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+			}
+			
+			json = GsonService.entityToJson(list);
+			
+		}
+		else 
+		{
+			json = "{ }";
+			String subjectName = req.getParameter("SubjectName");
+			String subjectVocational = req.getParameter("SubjectVocational");
+	
+			Key<SubjectEntity> key = createSubjectEntity (subjectName, subjectVocational);
+			if (key == null) {
+				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+	
+			json = GsonService.entityToJson(SubjectInformation.getSubject(key));
+		}
+		
+		resp.getWriter().print(json);
+	}
+	
+	protected Key<SubjectEntity> createSubjectEntity (String subjectName, String subjectVocational)
+	{
 		if ((subjectName == null) || (subjectVocational == null))
 		{
-			resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			return;
+			return null;
 		}
 		
 		boolean vocational = Boolean.valueOf(subjectVocational);
 		SubjectEntity subject = new SubjectEntity (subjectName, vocational);
-		Key<SubjectEntity> key = SubjectInformation.saveSubject(subject);
-		
-		String json = "[ ]";
-		if (key != null)
-			json = GsonService.keyToJson(key);
-		
-		resp.getWriter().print(json);
+		return SubjectInformation.saveSubject(subject);
 	}
 
 	public void doPut(HttpServletRequest req, HttpServletResponse resp)
@@ -80,7 +123,7 @@ public class SubjectServlet extends HttpServlet {
 		
 		String json = "[ ]";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.entityToJson(SubjectInformation.getSubject(key));
 		
 		resp.getWriter().print(json);
 	}

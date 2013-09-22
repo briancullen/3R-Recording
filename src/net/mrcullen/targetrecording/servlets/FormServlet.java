@@ -1,7 +1,10 @@
 package net.mrcullen.targetrecording.servlets;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -10,8 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.ObjectifyService;
 
 import net.mrcullen.targetrecording.GsonService;
+import net.mrcullen.targetrecording.OfyService;
 import net.mrcullen.targetrecording.UrlPathHelper;
 import net.mrcullen.targetrecording.entities.FormEntity;
 import net.mrcullen.targetrecording.entities.SubjectEntity;
@@ -31,23 +36,67 @@ public class FormServlet extends HttpServlet {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-
-		String formCode = req.getParameter("FormCode");
-		String formIntakeYear = req.getParameter("FormIntakeYear");
+		
+		String json = "[ ]";
+		if (req.getParameter("BulkFormCSVData") != null)
+		{
+			// Its a bulk request
+			ArrayList<FormEntity> list = new ArrayList<FormEntity> ();
+			StringTokenizer tokens = new StringTokenizer (req.getParameter("BulkFormCSVData"),"[,\n\r]+");
+			
+			try {
+				while (tokens.hasMoreTokens()) {
+					Key<FormEntity> key = createFormEntity(tokens.nextToken(), tokens.nextToken());
+					if (key == null)
+						throw new Exception ();
+					
+					list.add(FormInformation.getForm(key));
+				}
+			} catch (Exception e) {
+				Iterator<FormEntity> items = list.iterator();
+				while (items.hasNext())
+				{
+					Key<FormEntity> key = Key.create(items.next());
+					FormInformation.removeForm(key);
+					resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+			}
+			
+			json = GsonService.entityToJson(list);
+			
+		}
+		else {
+			json = "{ }";
+			String formCode = req.getParameter("FormCode");
+			String formIntakeYear = req.getParameter("FormIntakeYear");
+			
+			Key<FormEntity> key = createFormEntity (formCode, formIntakeYear);
+			if (key == null)
+			{
+				resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+			json = GsonService.entityToJson(FormInformation.getForm(key));
+		}
+		
+		resp.getWriter().print(json);
+	}
+	
+	protected Key<FormEntity> createFormEntity (String formCode, String formIntakeYear)
+	{
+		if (formCode == null)
+			return null;
 		
 		int intakeYear = -1;
 		try {
 			intakeYear = Integer.parseInt(formIntakeYear);
-		} catch (Exception ex) { resp.setStatus(HttpServletResponse.SC_BAD_REQUEST); return; }
+		} catch (Exception ex) { return null; }
 		
 		FormEntity form = new FormEntity (formCode, intakeYear);
-		Key<FormEntity> key = FormInformation.saveForm(form);
+		return FormInformation.saveForm(form);
 		
-		String json = "[ ]";
-		if (key != null)
-			json = GsonService.keyToJson(key);
-		
-		resp.getWriter().print(json);
 	}
 
 	public void doPut(HttpServletRequest req, HttpServletResponse resp)
@@ -88,7 +137,7 @@ public class FormServlet extends HttpServlet {
 		
 		String json = "[ ]";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.entityToJson(FormInformation.getForm(key));
 		
 		resp.getWriter().print(json);
 	}

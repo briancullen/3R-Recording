@@ -194,6 +194,11 @@ var progressHandler = new function () {
 			$('#pupilRecordTable a[data-icon="gear"]').click(function (eventObj) {
 				$('#recordDialogForm').data('recordkey', $(eventObj.currentTarget).data('recordkey'));
 			});
+			
+			$('#manageProgressNotFoundBanner').hide();
+		}
+		else {
+			$('#manageProgressNotFoundBanner').fadeIn(2000);
 		}
 		
 		// Update the banner even if nothing was recieved.
