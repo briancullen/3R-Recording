@@ -41,7 +41,7 @@ public class TargetProgressInformation {
 	@SuppressWarnings("rawtypes")
 	public static void removeAllTargetProgress (Key target)
 	{
-		ofy().delete().keys(ofy().load().type(PupilTargetEntity.class).ancestor(target).keys().list());
+		ofy().delete().keys(ofy().load().ancestor(target).keys().list());
 	}
 
 	public static Key<TargetProgressEntity> saveTargetProgress (TargetProgressEntity target)

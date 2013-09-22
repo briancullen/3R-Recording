@@ -72,8 +72,7 @@ public class PupilTargetInformation {
 	
 	public static void removePupilTargets (Key<PupilEntity> pupil)
 	{
-		TargetProgressInformation.removeAllTargetProgress(pupil);
-		ofy().delete().type(PupilTargetEntity.class).parent(pupil);
+		ofy().delete().keys(ofy().load().ancestor(pupil).keys().list());
 	}
 	
 	public static Key<PupilTargetEntity> saveTarget (PupilTargetEntity target)

@@ -8,8 +8,7 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
-	<script src="/js/mustache.js"></script>
-	<script src="/js/pupilRegistration.js"></script>
+	<script src="/js/pupil/Registration.js"></script>
 	
 	<title>Pupil Registration</title>
 </head>
@@ -35,7 +34,7 @@
 					<select name="UserFormKey" id="studentRegistrationFormForm" data-mini="true">
 					</select>
 				</div>
-				<a id="studentRegistrationFormSubmit" data-rel="back" data-role="button" data-theme="b">Submit</a>
+				<a id="studentRegistrationFormSubmit" data-role="button" data-theme="b">Submit</a>
 			    <a data-rel="back" data-role="button">Cancel</a>
 			</form>
 		</div>

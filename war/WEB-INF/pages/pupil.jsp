@@ -8,9 +8,12 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
-	<script src="/js/mustache.js"></script>
-	<script src="/js/pupil.js"></script>
-	<script src="/js/manageTargets.js"></script>
+	
+	<script src="/js/Grades.js"></script>
+	<script src="/js/DataStore.js"></script>
+	<script src="/js/pupil/ManageTargets.js"></script>
+	<script src="/js/pupil/ManageProgress.js"></script>
+	
 	
 	<link rel="stylesheet" href="/css/pupil.css" />
 	<title>3R Target Records</title>
@@ -22,7 +25,7 @@
 			<a href="${LogoutURL}" data-ajax="false" class="ui-btn-right" data-icon="alert">Logout</a>
 			<div data-role="navbar" data-iconpos="left" >
 				<ul>
-					<li><a href="#pupilRecordDialog" data-rel="dialog" data-icon="plus">Record Progress</a></li>
+					<li id="addProgressBtn"><a href="#progressRecordDialog" data-rel="dialog" data-icon="plus">Record Progress</a></li>
 					<li><a href="#manageTargetsPage" data-icon="gear">Manage Targets</a></li>
 					<li><a href="#pupilRecordsYearPopup" data-position-to="window" data-rel="popup" data-icon="gear">Change Year</a></li>
 				</ul>
@@ -80,9 +83,37 @@
 		</div>
 	</div>
 	
+	<div data-role="page" id="progressRecordDialog">
+		<div data-role="header">
+			<h1>New Progress Record</h1>
+		</div>
+		<div data-role="content">
+			<form id="recordDialogForm">
+				<div data-role="fieldcontain">
+					<label for="recordDialogSubject">Subject:</label>
+					<select name="recordDialogSubject" id="recordDialogSubject" data-mini="true">
+
+					</select>
+				</div>
+				<div data-role="fieldcontain">
+				    <label for="recordDialogCurrentLevel">Current Level:</label>
+					<select name="recordDialogCurrentLevel" id="recordDialogCurrentLevel" data-mini="true">
+					</select>
+				</div>
+				<div data-role="fieldcontain">
+				    <label for="recordDialogTarget">Next Steps:</label>
+				    <textarea cols="40" rows="8" name="recordDialogTarget" placeholder="How can you improve to meet you targets?" id="recordDialogTarget"></textarea>
+				</div>
+				<a id="recordDialogSubmit" data-rel="back" data-role="button" data-theme="b">Submit</a>
+			    <a data-rel="back" data-role="button">Cancel</a>
+			</form>
+		</div>
+	</div>
+	
 	<div data-role="page" id="manageTargetsPage">
 		<div data-role="header">
 			<h1>Manage Subject Targets</h1>
+			<a href="#pupilRecordsPage" class="ui-btn-right" data-icon="back">Back</a>
 		</div>
 		<div data-role="content">
 			<div class="ui-grid-a">
@@ -152,14 +183,16 @@
 	
 	<script type="text/javascript">
 	
-		var pupilInformation = { displayName: "${UserEntity.name}",
+		dataStore.pupil = { displayName: "${UserEntity.name}",
 		                         email: "${UserEmail}",
 	                         	 form: "${UserEntity.form.value.formCode}",
 		                         year: "${UserEntity.form.value.yearGroup}",
 		                         keyStage: "${UserEntity.form.value.keyStage}",
 		                         key: "${UserEntityKey}" };
-		$('#pupilRecordsPage').on("pageinit", initialise());
-		$('#manageTargetsPage').on("pageinit", initialiseManageTargetPage);
+		
+		dataStore.initialise();
+		$('#pupilRecordsPage').on("pageinit", progressHandler.initialise);
+		$('#manageTargetsPage').on("pageinit", targetsHandler.initialise);
 	</script>	
 </body>
 </html>

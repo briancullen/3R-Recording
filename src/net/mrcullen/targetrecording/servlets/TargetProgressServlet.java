@@ -14,6 +14,7 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 
 import net.mrcullen.targetrecording.GsonService;
+import net.mrcullen.targetrecording.PupilRecordHelper;
 import net.mrcullen.targetrecording.UrlPathHelper;
 import net.mrcullen.targetrecording.entities.PupilTargetEntity;
 import net.mrcullen.targetrecording.entities.TargetProgressEntity;
@@ -77,9 +78,9 @@ public class TargetProgressServlet extends HttpServlet {
 		
 		Key<TargetProgressEntity> key = TargetProgressInformation.saveTargetProgress(progress);
 		
-		String json = "[ ]";
+		String json = "{ }";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.gson.toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
 		
 		resp.getWriter().print(json);
 	}
@@ -114,6 +115,7 @@ public class TargetProgressServlet extends HttpServlet {
 		{
 			if (!target.setRecordType(targetType))
 			{
+				
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;							
 			}
@@ -148,9 +150,9 @@ public class TargetProgressServlet extends HttpServlet {
 		
 		key = TargetProgressInformation.saveTargetProgress(target);
 		
-		String json = "[ ]";
+		String json = "{ }";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.gson.toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
 		
 		resp.getWriter().print(json);
 	}

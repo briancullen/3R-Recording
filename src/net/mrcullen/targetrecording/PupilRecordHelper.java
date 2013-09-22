@@ -39,6 +39,11 @@ public class PupilRecordHelper {
 		return baseElement;
 	}
 	
+	public static JsonElement constructRecord (TargetProgressEntity progress)
+	{
+		return constructRecords (progress.getPupilTarget(), progress);
+	}
+	
 	public static JsonElement constructRecords (List<TargetProgressEntity> progress)
 	{
 		JsonArray result = new JsonArray();

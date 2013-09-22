@@ -88,10 +88,11 @@ public class PupilTargetServlet extends HttpServlet {
 		}
 		
 		Key<PupilTargetEntity> key = PupilTargetInformation.saveTarget(newTarget);
+		newTarget = PupilTargetInformation.getPupilTargetEntity(key);
 		
-		String json = "[ ]";
+		String json = "{ }";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.entityToJson(newTarget);
 		
 		resp.getWriter().print(json);
 	}
@@ -144,9 +145,9 @@ public class PupilTargetServlet extends HttpServlet {
 		
 		key = PupilTargetInformation.saveTarget(target);
 		
-		String json = "[ ]";
+		String json = "{ }";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.entityToJson(target);
 		
 		resp.getWriter().print(json);		
 	}
