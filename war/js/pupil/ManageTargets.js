@@ -15,7 +15,8 @@ var targetsHandler = new function () {
 		if ($('#manageTargetsSubjectList a.ui-btn-active').length == 0)
 		{
 			$('#manageTargetForm select').empty().selectmenu("refresh");
-			$("#manageTargetNotFoundBanner").fadeIn(2000);
+			$("#manageTargetBanner").fadeIn(2000);
+			$('#manageTargetBanner h3').text("No records found for the specified criteria - please try again.");
 			$('#manageTargetsUpdate').addClass("ui-disabled");
 			$('#manageTargetsRemove').addClass("ui-disabled");
 			$('#manageTargetForm select').prop("disabled", true);
@@ -23,7 +24,7 @@ var targetsHandler = new function () {
 		}
 		
 		// Gets the target data
-		$("#manageTargetNotFoundBanner").fadeOut(1000);
+		$("#manageTargetBanner").hide();
 		$('#manageTargetsRemove').removeClass("ui-disabled");
 		$('#manageTargetForm select').prop("disabled", false);
 		
@@ -166,7 +167,10 @@ var targetsHandler = new function () {
 		};
 
 		$('#manageTargetsUpdate').addClass("ui-disabled");
-		dataStore.targets.update(selectedTarget, selectedKeyStage, data, function(data) {});
+		dataStore.targets.update(selectedTarget, selectedKeyStage, data, function(data) {
+			$('#manageTargetBanner h3').text("Target details have been updated.");
+			$('#manageTargetBanner').fadeIn(2000);
+		});
 	};
 	
 	this.createSubjectTarget = function(eventObj) {
@@ -184,6 +188,8 @@ var targetsHandler = new function () {
 					$('#manageTargetsSubjectList').listview("refresh");
 					$('#manageTargetsSubjectList a').first().click(targetsHandler.changeSelectedTarget);
 					$('#manageTargetsSubjectList a').first().trigger("click");
+					$('#manageTargetBanner h3').text("New target has been created - please update below.");
+					$('#manageTargetBanner').fadeIn(2000);
 				});
 	};
 };

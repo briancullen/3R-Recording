@@ -26,7 +26,7 @@
 				</div>
 				<div data-role="fieldcontain">
 					<label for="studentRegistrationFormName">Name:</label>
-					<input type="text" placeholder="You Real Name" name="UserName" id="studentRegistrationFormName" data-mini="true">
+					<input type="text" placeholder="Real Name" name="UserName" id="studentRegistrationFormName" data-mini="true">
 					</select>
 				</div>
 				<div data-role="fieldcontain">

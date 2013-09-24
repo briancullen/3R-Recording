@@ -5,7 +5,7 @@ function getGrades (keyStage, vocational)
 	var keyStage4Grades = [ "U", "G", "F", "E", "D", "C", "B", "A", "A*" ]
 	var keyStage5Grades = [ "U", "G", "F", "E", "D", "C", "B", "A", "A*" ]
 
-	var keyStage4VocGrades = [ "PASS", "MERIT", "DISTINCTION" ]
+	var keyStage4VocGrades = [ "PASS", "MERIT", "DISTINCTION", "DISTINCTION*" ]
 	var keyStage5VocGrades = [ "PASS", "MERIT", "DISTINCTION", "DISTINCTION*" ]
 	
 	var grades = keyStage3Grades;

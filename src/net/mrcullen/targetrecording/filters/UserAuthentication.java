@@ -50,7 +50,8 @@ public class UserAuthentication implements Filter {
 		
 		if (userInfo == null)
 		{
-			((HttpServletResponse)resp).sendRedirect(userService.createLoginURL(((HttpServletRequest)req).getRequestURL().toString()));
+			/* Shouldn't be possible on proper authentication has been added. */
+			((HttpServletResponse)resp).sendRedirect("/");
 		    return;
 		}
 		

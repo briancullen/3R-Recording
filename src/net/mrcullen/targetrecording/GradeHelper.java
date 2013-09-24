@@ -10,7 +10,7 @@ public class GradeHelper {
 	public static final String[] KS4_TARGET_GRADES = { "U", "G", "F", "E", "D", "C", "B", "A", "A*" };
 	public static final String[] KS5_TARGET_GRADES = KS4_TARGET_GRADES;
 
-	public static final String[] KS4_VOC_TARGET_GRADES = {"PASS", "MERIT", "DISTINCTION" };
+	public static final String[] KS4_VOC_TARGET_GRADES = {"PASS", "MERIT", "DISTINCTION", "DISTINCTION*" };
 	public static final String[] KS5_VOC_TARGET_GRADES = {"PASS", "MERIT", "DISTINCTION", "DISTINCTION*" };
 	
 	public static int getKeyStage (int yearGroup)

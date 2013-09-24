@@ -1,9 +1,11 @@
 function saveTargetRecord()
 {
+	$.mobile.loading("show");
 	$.post ('/register.html', $('#studentRegistrationForm').serialize(),
 		function (data) {
+			$.mobile.loading("hide");
 			location.href = "/pupil";
-	}, "json").fail(function () { alert("Unable to save the record!"); });
+	}, "json").fail(function () { $.mobile.loading("hide"); alert("Unable to save the record!"); });
 }
 
 function initialise (formInformation)

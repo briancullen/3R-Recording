@@ -1,8 +1,5 @@
 @CHARSET "ISO-8859-1";
 
-table#pupilRecordTable { display: table; } 
-table .centerColumn { text-align: center; }
-
 #manageTargetsPage div.ui-grid-a>div { padding: 10px; }
 #manageTargetsPage div.ui-grid-a div.ui-block-a { width: 35%; }
 #manageTargetsPage div.ui-grid-a div.ui-block-b { width: 65%; }

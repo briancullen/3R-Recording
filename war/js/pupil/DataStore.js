@@ -42,6 +42,7 @@ var dataStore = new function () {
 				return;
 			}
 			
+			loading("show");
 			$.getJSON('/api/pupil/' + dataStore.pupil.key + '/progress', {Year: year, Type: type }, 
 				function (data) {
 					if(!(year in progressToTargets))
@@ -53,35 +54,42 @@ var dataStore = new function () {
 					}
 					
 					callback(progressToTargets[year][type]);
-				}).fail(function () {alert("Unable to load progress records from server");});
+					loading("hide");
+				}).fail(function () { loading("hide"); alert("Unable to load progress records from server"); });
 		};
 		
 		this.create = function (newProgressData, callback) {
 			callback = typeof callback !== 'undefined' ? callback : function() {};
 			
+			loading("show");
 			$.post ('/api/progress', newProgressData,  function(data) {
 				progressToTargets[data.progress.yearGroup][data.progress.recordType][data.progress.key] = data;
 				callback(data);
-			}, "json").fail(function ()	{ alert("Unable to save the record!"); });
+				loading("hide");
+			}, "json").fail(function ()	{ loading("hide"); alert("Unable to save the record!"); });
 			
 		};
 		
 		this.update = function (progressKey, newProgressData, callback) {
 			callback = typeof callback !== 'undefined' ? callback : function() {};
 			
+			loading("show");
 			$.ajax('/api/progress/'+ progressKey, {type: "PUT", data: newProgressData, dataType: "json"}).done(function (data) {
 				progressToTargets[data.progress.yearGroup][data.progress.recordType][data.progress.key] = data;
 				callback(data);
-			});
+				loading("hide");
+			}).fail (function() { loading("hide"); alert("Unable to save the record!"); });
 		}
 		
 		this.remove = function (progressKey, year, type, callback) {
 			callback = typeof callback !== 'undefined' ? callback : function() {};
 			
+			loading("show");
 			$.ajax('/api/progress/'+ progressKey, {type: "DELETE"}).done(function () {
 				delete progressToTargets[year][type][progressKey];
 				callback(progressToTargets[year][type]);
-			}).fail(function () { alert("Unable to delete the record specified!"); });
+				loading("hide");
+			}).fail(function () { loading("hide"); alert("Unable to delete the record specified!"); });
 		};
 		
 	};
@@ -99,6 +107,7 @@ var dataStore = new function () {
 				return;
 			}
 			
+			loading("show");
 			$.get("/api/subject", function (jsonData) {
 				subjects = {};
 				for (var index in jsonData)
@@ -106,7 +115,8 @@ var dataStore = new function () {
 					subjects[jsonData[index].key] = jsonData[index];
 				}
 				callback(subjects);
-			}, "json").fail(function () {alert("Unable to load subjects from server");});
+				loading("hide");
+			}, "json").fail(function () { loading("hide"); alert("Unable to load subjects from server");});
 		};
 		
 		// Gets a list of the subjects that have targets associated with them. Does this
@@ -153,6 +163,7 @@ var dataStore = new function () {
 			}
 			
 			var data = { KeyStage: keyStage }
+			loading("show");
 			$.get("/api/pupil/" + dataStore.pupil.key + "/target", data, function(jsonData) {
 				subjectsWithTargets[keyStage] = {};
 				targetsForSubjects[keyStage] = {};
@@ -165,23 +176,27 @@ var dataStore = new function () {
 				}
 	
 				callback(targetsForSubjects[keyStage]);
-			}, "json").fail(function () {alert("Unable to load targets from server");});
+				loading("hide");
+			}, "json").fail(function () { loading("hide"); alert("Unable to load targets from server");});
 		};
 		
 		this.remove = function (targetKey, keyStage, callback)
 		{
+			loading("show");
 			$.ajax('/api/target/'+ targetKey,
 				{ type: "DELETE" }).done(function ()
 					{ 
 						delete subjectsWithTargets[keyStage][targetsForSubjects[keyStage][targetKey].subject.key];
 						delete targetsForSubjects[keyStage][targetKey];
 						callback(targetsForSubjects);
+						loading("hide");
 					})
-				.fail(function () { alert("Unable to delete the record specified!"); });
+				.fail(function () { loading("hide"); alert("Unable to delete the record specified!"); });
 		};
 		
 		this.update = function (targetKey, keyStage, targetData, callback)
 		{
+			loading("show");
 			$.ajax('/api/target/'+ targetKey, { type: "PUT", data: targetData })
 				.done(function () {
 					var target = targetsForSubjects[keyStage][targetKey];
@@ -189,7 +204,8 @@ var dataStore = new function () {
 					target.fourLevelsTargetGrade = targetData.FourLevelsTarget;
 					target.fiveLevelsTargetGrade = targetData.FiveLevelsTarget;
 					callback(targetsForSubjects);
-				}).fail(function () { alert("Unable to update the record specified!"); });
+					loading("hide");
+				}).fail(function () { loading("hide"); alert("Unable to update the record specified!"); });
 		};
 		
 		this.create = function (subjectKey, keyStage, callback) {
@@ -201,11 +217,13 @@ var dataStore = new function () {
 			             FourLevelsTarget: grades[0],
 			             FiveLevelsTarget: grades[0] };
 			
+			loading("show");
 			$.post ('/api/target', newData,  function(newTarget) {
 					targetsForSubjects[keyStage][newTarget.key] = newTarget;
 					subjectsWithTargets[keyStage][newTarget.subject.key] = newTarget.subject;
 					callback(newTarget);
-				}, "json").fail(function ()	{ alert("Unable to save the record!"); });
+					 loading("hide");
+				}, "json").fail(function ()	{ loading("hide"); alert("Unable to save the record!"); });
 		};
 	};
 			

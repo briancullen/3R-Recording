@@ -5,9 +5,13 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<link href="/css/footable/footable.core.min.css" rel="stylesheet" type="text/css" />
+	<link href="/css/footable/footable.standalone.min.css" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+	<script src="/js/footable/footable.js" type="text/javascript"></script>
+	<script src="/js/footable/footable.sort.min.js" type="text/javascript"></script>
 	
 	<script src="/js/Grades.js"></script>
 	<script src="/js/pupil/DataStore.js"></script>
@@ -33,20 +37,20 @@
 		</div>
 		<div data-role="content">
 			<div class="ui-bar-b" >
-				<p id="pupilRecordBanner" style="text-align:center">${UserEntity.name} (${UserEmail}) for Year ${UserEntity.form.value.yearGroup}</p>
+				<p id="pupilRecordBanner" style="text-align:center">${UserEntity.name} (${UserEmail}) in Year ${UserEntity.form.value.yearGroup}</p>
 			</div>
 
 		
-			<table data-role="table" id="pupilRecordTable" data-mode="reflow" class="ui-responsive table-stroke">
+			<table id="pupilRecordTable" class="footable" data-page-size="5">
 		     <thead>
-		       <tr class="ui-bar-d">
-		         <th data-priority="1">Subject</th>
-		         <th data-priority="3" class="centerColumn">3 Levels</th>
-		         <th data-priority="1" class="centerColumn">4 Levels</th>
-		         <th data-priority="3" class="centerColumn">5 Levels</th>
-		         <th data-priority="1" class="centerColumn">Current Level</th>
-		         <th data-priority="2">Target</th>
-		         <th> </th>
+		       <tr> 
+		         <th data-sort-initial="true">Subject</th>
+		         <th data-hide="phone, tablet">3 Levels</th>
+		         <th data-hide="phone, tablet">4 Levels</th>
+		         <th data-hide="phone, tablet">5 Levels</th>
+		         <th>Current Level</th>
+		         <th data-hide="phone" data-sort-ignore="true">Target</th>
+		         <th data-sort-ignore="true" data-hide="phone, tablet, desktop">Controls</th>
 		       </tr>
 		     </thead>
 		     <tbody>
@@ -78,8 +82,8 @@
 		<div id="pupilRecordsPageFooter"data-role="footer" data-position="fixed">
 			<div data-role="navbar">
 		        <ul>
-		            <li><a data-recordtype="Resilience" class="ui-btn-active">Resilience</a></li>
-		            <li><a data-recordtype="Responsibility">Responsibility</a></li>
+		        	<li><a data-recordtype="Responsibility" class="ui-btn-active">Responsibility</a></li>
+		            <li><a data-recordtype="Resilience">Resilience</a></li>
 		            <li><a data-recordtype="Reflection">Reflection</a></li>
 		        </ul>
 			</div>
@@ -138,23 +142,23 @@
 					</ul>
 				</div>
 				<div class="ui-block-b">
-					<div style="display:none;" id="manageTargetNotFoundBanner" class="ui-bar ui-bar-e">
+					<div style="display:none;" id="manageTargetBanner" class="ui-bar ui-bar-e">
 						<h3>No records found for the specified criteria - please try again.</h3>
 					</div>
 					
 					<form id="manageTargetForm">
 						<div data-role="fieldcontain">
-						    <label for="manageTarget3Levels">3 LevelsTarget:</label>
+						    <label for="manageTarget3Levels">3 Levels:</label>
 							<select name="ThreeLevelsTarget" id="manageTarget3Levels" data-mini="true">
 							</select>
 						</div>
 						<div data-role="fieldcontain">
-						    <label for="manageTarget4Levels">4 Levels Target:</label>
+						    <label for="manageTarget4Levels">4 Levels:</label>
 							<select name="FourLevelsTarget" id="manageTarget4Levels" data-mini="true">
 							</select>
 						</div>
 						<div data-role="fieldcontain">
-						    <label for="manageTarget5Levels">5 Levels Target:</label>
+						    <label for="manageTarget5Levels">5 Levels:</label>
 							<select name="FiveLevelsTarget" id="manageTarget5Levels" data-mini="true">
 							</select>
 						</div>
@@ -192,6 +196,12 @@
 		                         year: "${UserEntity.form.value.yearGroup}",
 		                         keyStage: "${UserEntity.form.value.keyStage}",
 		                         key: "${UserEntityKey}" };
+		
+		function loading(showOrHide) {
+		    setTimeout(function(){
+		        jQuery.mobile.loading(showOrHide);
+		    }, 1); 
+		}
 		
 		dataStore.initialise();
 		$('#pupilRecordsPage').on("pageinit", progressHandler.initialise);

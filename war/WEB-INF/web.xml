@@ -108,6 +108,18 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
         <url-pattern>/teacher/*</url-pattern>
 	</filter-mapping>
 	
+	<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>profile</web-resource-name>
+            <url-pattern>/api/*</url-pattern>
+            <url-pattern>/pupil/*</url-pattern>
+            <url-pattern>/teacher/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+    </security-constraint>
+	
 	<welcome-file-list>
 	    <welcome-file>index.html</welcome-file>
 	</welcome-file-list>

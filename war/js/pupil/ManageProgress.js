@@ -34,6 +34,18 @@ var progressHandler = new function () {
 	};
 	
 	this.initialise = function () {
+
+		$('#pupilRecordTable').footable({
+		    breakpoints: {
+		    	phone: 480,
+		    	tablet: 900,
+		    	desktop: 1150,
+		    	widedesktop: 1500
+		    }
+		});
+		
+		$('#pupilRecordsPage').on('pageshow', $('#pupilRecordTable').data("footable").resize);
+		
 		// Save the year and type to the datatable for later use and triggers and
 		// update of the records shown in the table.
 		selectedYear = dataStore.pupil.year;
@@ -159,39 +171,45 @@ var progressHandler = new function () {
 	
 	this.updateProgressTable = function (data)
 	{
-		$('#pupilRecordTable tbody').empty();
+		var footable = $('#pupilRecordTable').data("footable");
+		// $('#pupilRecordTable tbody').empty();
+		$('#pupilRecordTable tbody tr').each(function (index){ footable.removeRow($(this)); });
 	
 		if (!$.isEmptyObject(data))
 		{
+			
 			for (var key in data)
 			{
 				var record = data[key];
-
-				$('#pupilRecordTable tbody').append('<tr>'
+				console.log(record);
+				footable.appendRow('<tr>'
 						 + '<td>' + record.target.subject.name + '</td>\
-				         <td class="centerColumn">' + record.target.threeLevelsTargetGrade + '</td>\
-				         <td class="centerColumn">' + record.target.fourLevelsTargetGrade + '</td>\
-				         <td class="centerColumn">' + record.target.fiveLevelsTargetGrade + '</td>\
-				         <td class="centerColumn">' + record.progress.currentLevel + '</td>\
+				         <td>' + record.target.threeLevelsTargetGrade + '</td>\
+				         <td>' + record.target.fourLevelsTargetGrade + '</td>\
+				         <td>' + record.target.fiveLevelsTargetGrade + '</td>\
+				         <td>' + record.progress.currentLevel + '</td>\
 					     <td>' + record.progress.nextSteps + '</td>\
-					     <td><div data-role="controlgroup" data-type="horizontal" data-mini="true"><a data-role="button"\
-					     		href="#progressRecordDialog" data-rel="dialog" data-recordkey="'
-					     		+ record.progress.key + '" data-icon="gear" data-iconpos="notext">Edit</a>\
-					     		<a data-rel="dialog" data-role="button" data-recordkey="' + record.progress.key
-								+ '" data-icon="delete" data-iconpos="notext">Delete</a></div></td></tr>');
+					     <td><div data-role="controlgroup" data-type="horizontal" data-mini="true"><a \
+					     	href="#progressRecordDialog" data-rel="dialog" data-recordkey="'
+					     	+ record.progress.key + '" data-icon="gear">Edit</a>\
+					     <a href="#" data-recordkey="' + record.progress.key
+							+ '" data-icon="delete">Delete</a></div></td></tr>');
 			}
 			
+			
 			// Styles the newly created buttons.
-			$('#pupilRecordTable a').button();
+			// $('#pupilRecordTable a').button();
 			$('#pupilRecordTable div').controlgroup();
 			
 			// Adds handlers to the newly created buttons.
-			$('#pupilRecordTable a[data-icon="delete"]').click(function (eventObj) {
+			$('#pupilRecordTable').on("click", 'a[data-icon="delete"]', function (eventObj) {
+				console.log("Delete triggered");
 				var recordKey = $(eventObj.currentTarget).data('recordkey');
 				dataStore.progress.remove(recordKey, selectedYear, selectedType, progressHandler.updateProgressTable);
 			});
 			
-			$('#pupilRecordTable a[data-icon="gear"]').click(function (eventObj) {
+			$('#pupilRecordTable').on("click", 'a[data-icon="gear"]', function (eventObj) {
+				console.log("Click for gears!");
 				$('#recordDialogForm').data('recordkey', $(eventObj.currentTarget).data('recordkey'));
 			});
 			
@@ -200,10 +218,9 @@ var progressHandler = new function () {
 		else {
 			$('#manageProgressNotFoundBanner').fadeIn(2000);
 		}
-		
+
 		// Update the banner even if nothing was recieved.
-		$('#pupilRecordBanner').empty();
-		$('#pupilRecordBanner').append(dataStore.pupil.displayName + " (" 
+		$('#pupilRecordBanner').text(dataStore.pupil.displayName + " (" 
 				+ dataStore.pupil.email + ") for Year " + selectedYear);
 	};
 };
