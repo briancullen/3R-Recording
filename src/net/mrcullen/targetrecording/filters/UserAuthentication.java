@@ -48,6 +48,8 @@ public class UserAuthentication implements Filter {
 		UserService userService = UserServiceFactory.getUserService();
 		User userInfo = userService.getCurrentUser();
 		
+		String requiredRole = filterConfig.getInitParameter("RequiredRole");
+		
 		if (userInfo == null)
 		{
 			/* Shouldn't be possible on proper authentication has been added. */
@@ -58,24 +60,37 @@ public class UserAuthentication implements Filter {
 		String userEmail = userInfo.getEmail();
 		req.setAttribute("UserEmail", userEmail);
 		
-		TeacherEntity teacher = TeacherInformation.getTeacher(userEmail);
-		if (teacher != null)
+		
+		PupilEntity pupil = PupilInformation.getPupil(userEmail);
+		TeacherEntity teacher = null;
+		if (pupil != null)
 		{
-			req.setAttribute("UserEntity", teacher);
-			req.setAttribute("UserEntityKey", KeyFactory.keyToString(Key.create(teacher).getRaw()));
-			req.setAttribute("UserAdmin", teacher.isAdmin());
-			req.setAttribute("TeacherType", Boolean.TRUE);
+			req.setAttribute("UserEntity", pupil);
+			req.setAttribute("UserEntityKey", KeyFactory.keyToString(Key.create(pupil).getRaw()));
+			req.setAttribute("UserAdmin", Boolean.FALSE);
+			req.setAttribute("TeacherType", Boolean.FALSE);	
 		}
 		else {
-			PupilEntity pupil = PupilInformation.getPupil(userEmail);
-			if (pupil != null)
+			teacher = TeacherInformation.getTeacher(userEmail);
+			if (teacher != null)
 			{
-				req.setAttribute("UserEntity", pupil);
-				req.setAttribute("UserEntityKey", KeyFactory.keyToString(Key.create(pupil).getRaw()));
-				req.setAttribute("UserAdmin", Boolean.FALSE);
-				req.setAttribute("TeacherType", Boolean.FALSE);				
+				req.setAttribute("UserEntity", teacher);
+				req.setAttribute("UserEntityKey", KeyFactory.keyToString(Key.create(teacher).getRaw()));
+				req.setAttribute("UserAdmin", Boolean.valueOf(teacher.isAdmin()));
+				req.setAttribute("TeacherType", Boolean.TRUE);
 			}
-			else {
+		}
+
+		if (requiredRole != null)
+		{
+			if ((requiredRole.equalsIgnoreCase("teacher")) && (teacher == null))
+			{
+				((HttpServletResponse)resp).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+	
+			if ((requiredRole.equalsIgnoreCase("pupil")) && (pupil == null))
+			{
 				// not registered need to kick to registration page.
 				((HttpServletResponse)resp).sendRedirect(filterConfig.getInitParameter("RegistrationPage"));
 			}

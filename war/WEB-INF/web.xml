@@ -94,18 +94,42 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
    	</filter-mapping>
 	
 	<filter>
-	    <filter-name>AuthenticationFilter</filter-name>
+	    <filter-name>PupilAuthenticationFilter</filter-name>
         <filter-class>net.mrcullen.targetrecording.filters.UserAuthentication</filter-class>
         <init-param>
     		<param-name>RegistrationPage</param-name>
     		<param-value>/register.html</param-value>
   		</init-param>
+  		<init-param>
+    		<param-name>RequiredRole</param-name>
+    		<param-value>pupil</param-value>
+  		</init-param>
 	</filter>
 	<filter-mapping>
-        <filter-name>AuthenticationFilter</filter-name>
-        <url-pattern>/api/*</url-pattern>
+        <filter-name>PupilAuthenticationFilter</filter-name>
         <url-pattern>/pupil/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+	    <filter-name>TeacherAuthenticationFilter</filter-name>
+        <filter-class>net.mrcullen.targetrecording.filters.UserAuthentication</filter-class>
+  		<init-param>
+    		<param-name>RequiredRole</param-name>
+    		<param-value>teacher</param-value>
+  		</init-param>
+	</filter>
+	<filter-mapping>
+        <filter-name>TeacherAuthenticationFilter</filter-name>
         <url-pattern>/teacher/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+	    <filter-name>APIAuthenticationFilter</filter-name>
+        <filter-class>net.mrcullen.targetrecording.filters.UserAuthentication</filter-class>
+	</filter>
+	<filter-mapping>
+        <filter-name>APIAuthenticationFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
 	</filter-mapping>
 	
 	<security-constraint>
@@ -114,6 +138,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
             <url-pattern>/api/*</url-pattern>
             <url-pattern>/pupil/*</url-pattern>
             <url-pattern>/teacher/*</url-pattern>
+            <url-pattern>/register.html</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>

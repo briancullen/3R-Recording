@@ -2,6 +2,8 @@ package net.mrcullen.targetrecording.servlets;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -22,11 +24,11 @@ import net.mrcullen.targetrecording.process.PupilTargetInformation;
 import net.mrcullen.targetrecording.process.SubjectInformation;
 
 @SuppressWarnings("serial")
-public class PupilTargetServlet extends HttpServlet {
+public class PupilTargetServlet extends AuthenticatedServletRequest {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(PupilTargetServlet.class.getName());
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
@@ -97,7 +99,7 @@ public class PupilTargetServlet extends HttpServlet {
 		resp.getWriter().print(json);
 	}
 
-	public void doPut(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		@SuppressWarnings("unchecked")
@@ -153,7 +155,7 @@ public class PupilTargetServlet extends HttpServlet {
 	}
 
 	
-	public void doDelete (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedDelete (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		@SuppressWarnings("unchecked")
@@ -168,7 +170,7 @@ public class PupilTargetServlet extends HttpServlet {
 		resp.setStatus(HttpServletResponse.SC_OK);
 	}
 	
-	public void doGet (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedGet (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		String json = "[ ]";
@@ -190,5 +192,19 @@ public class PupilTargetServlet extends HttpServlet {
 			json = GsonService.entityToJson(list);
 		}		
 		resp.getWriter().print(json);
+	}
+	
+	@Override
+	public Set<String> getRequiredPermission(String method) {
+		TreeSet<String> permissions = new TreeSet<String>();
+		permissions.add(ADMIN_PERMISSION);
+		permissions.add(OWN_PERMISSION);
+		
+		if (method.equals("GET"))
+		{
+			permissions.add(TEACHER_PERMISSION);
+		}
+			
+		return permissions;
 	}
 }

@@ -38,7 +38,6 @@ public class RegisterPageServlet extends HttpServlet {
 		String newUserEmail = req.getParameter("UserEmail");
 		if (newUserEmail == null)
 		{
-			log.warning("no email");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -71,6 +70,7 @@ public class RegisterPageServlet extends HttpServlet {
 		
 		if (userInfo == null)
 		{
+			// Shouldn't be able to happen!
 			((HttpServletResponse)resp).sendRedirect(userService.createLoginURL(((HttpServletRequest)req).getRequestURL().toString()));
 		    return;
 		}

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -22,11 +24,11 @@ import net.mrcullen.targetrecording.process.FormInformation;
 import net.mrcullen.targetrecording.process.SubjectInformation;
 
 @SuppressWarnings("serial")
-public class SubjectServlet extends HttpServlet {
+public class SubjectServlet extends AuthenticatedServletRequest {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(SubjectServlet.class.getName());
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
@@ -93,7 +95,7 @@ public class SubjectServlet extends HttpServlet {
 		return SubjectInformation.saveSubject(subject);
 	}
 
-	public void doPut(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		Key<SubjectEntity> subjectKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), SubjectEntity.class.getSimpleName());
@@ -129,7 +131,7 @@ public class SubjectServlet extends HttpServlet {
 	}
 
 	
-	public void doDelete (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedDelete (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		Key<SubjectEntity> subjectKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), SubjectEntity.class.getSimpleName());
@@ -143,7 +145,7 @@ public class SubjectServlet extends HttpServlet {
 		resp.setStatus(HttpServletResponse.SC_OK);
 	}
 	
-	public void doGet (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedGet (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		String json = "[ ]";
@@ -165,5 +167,18 @@ public class SubjectServlet extends HttpServlet {
 		}
 		
 		resp.getWriter().print(json);
+	}
+	
+	@Override
+	public Set<String> getRequiredPermission(String method) {
+		TreeSet<String> permissions = new TreeSet<String>();
+		if (method.equals("GET"))
+		{
+			permissions.add(ALL_PERMISSION);
+		}
+		else {
+			permissions.add(ADMIN_PERMISSION);
+		}
+		return permissions;
 	}	
 }

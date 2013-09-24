@@ -4,31 +4,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.ObjectifyService;
+
 
 import net.mrcullen.targetrecording.GsonService;
-import net.mrcullen.targetrecording.OfyService;
 import net.mrcullen.targetrecording.UrlPathHelper;
 import net.mrcullen.targetrecording.entities.FormEntity;
-import net.mrcullen.targetrecording.entities.SubjectEntity;
+
 import net.mrcullen.targetrecording.process.FormInformation;
 
 @SuppressWarnings("serial")
-public class FormServlet extends HttpServlet {
+public class FormServlet extends AuthenticatedServletRequest {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(FormServlet.class.getName());
 
 
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
@@ -99,7 +99,7 @@ public class FormServlet extends HttpServlet {
 		
 	}
 
-	public void doPut(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		Key<FormEntity> formKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), FormEntity.class.getSimpleName());
@@ -143,7 +143,7 @@ public class FormServlet extends HttpServlet {
 	}
 
 	
-	public void doDelete (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedDelete (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		Key<FormEntity> formKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), FormEntity.class.getSimpleName());
@@ -157,7 +157,7 @@ public class FormServlet extends HttpServlet {
 		resp.setStatus(HttpServletResponse.SC_OK);
 	}
 	
-	public void doGet (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedGet (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		String json = "[ ]";
@@ -205,5 +205,18 @@ public class FormServlet extends HttpServlet {
 		}
 		
 		resp.getWriter().print(json);
+	}
+
+	@Override
+	public Set<String> getRequiredPermission(String method) {
+		TreeSet<String> permissions = new TreeSet<String>();
+		if (method.equals("GET"))
+		{
+			permissions.add(ALL_PERMISSION);
+		}
+		else {
+			permissions.add(ADMIN_PERMISSION);
+		}
+		return permissions;
 	}	
 }

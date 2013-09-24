@@ -2,6 +2,8 @@ package net.mrcullen.targetrecording.servlets;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -18,11 +20,11 @@ import net.mrcullen.targetrecording.entities.TeacherEntity;
 import net.mrcullen.targetrecording.process.TeacherInformation;
 
 @SuppressWarnings("serial")
-public class TeacherServlet extends HttpServlet {
+public class TeacherServlet extends AuthenticatedServletRequest {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(TeacherServlet.class.getName());
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
@@ -52,7 +54,7 @@ public class TeacherServlet extends HttpServlet {
 		resp.getWriter().print(json);
 	}
 
-	public void doPut(HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		Key<TeacherEntity> teacherKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), TeacherEntity.class.getSimpleName());
@@ -91,7 +93,7 @@ public class TeacherServlet extends HttpServlet {
 	}
 
 	
-	public void doDelete (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedDelete (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		Key<TeacherEntity> teacherKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), TeacherEntity.class.getSimpleName());
@@ -112,7 +114,7 @@ public class TeacherServlet extends HttpServlet {
 		resp.setStatus(HttpServletResponse.SC_OK);
 	}
 	
-	public void doGet (HttpServletRequest req, HttpServletResponse resp)
+	public void doAuthenticatedGet (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
 		String json = "[ ]";
@@ -146,5 +148,26 @@ public class TeacherServlet extends HttpServlet {
 			}
 		}		
 		resp.getWriter().print(json);
+	}
+
+	@Override
+	public Set<String> getRequiredPermission(String method) {
+		TreeSet<String> permissions = new TreeSet<String>();
+		permissions.add(ADMIN_PERMISSION);
+		if (method.equals("GET"))
+		{
+			permissions.add(OWN_PERMISSION);
+			permissions.add(TEACHER_PERMISSION);
+		}
+		else if (method.equals("POST"))
+		{
+			permissions.add(PUPIL_PERMISSION);
+		}
+		else if (method.equals("PUT"))
+		{
+			permissions.add(OWN_PERMISSION);			
+		}
+			
+		return permissions;
 	}
 }
