@@ -18,6 +18,7 @@ import com.googlecode.objectify.Ref;
 import net.mrcullen.targetrecording.GsonService;
 import net.mrcullen.targetrecording.PupilRecordHelper;
 import net.mrcullen.targetrecording.UrlPathHelper;
+import net.mrcullen.targetrecording.entities.PupilEntity;
 import net.mrcullen.targetrecording.entities.PupilTargetEntity;
 import net.mrcullen.targetrecording.entities.TargetProgressEntity;
 import net.mrcullen.targetrecording.process.PupilTargetInformation;
@@ -58,6 +59,13 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 			return;
 		}
 		
+		PupilEntity pupilEntity = pupilTarget.getPupil();
+		if (!Key.create(pupilEntity).equals(Key.create(req.getAttribute("UserEntity"))))
+		{
+			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
 		int year = -1;
 		try { 
 			year = Integer.parseInt(yearParam);
@@ -82,7 +90,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		
 		String json = "{ }";
 		if (key != null)
-			json = GsonService.gson.toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
+			json = GsonService.gson().toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
 		
 		resp.getWriter().print(json);
 	}
@@ -154,7 +162,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		
 		String json = "{ }";
 		if (key != null)
-			json = GsonService.gson.toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
+			json = GsonService.gson().toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
 		
 		resp.getWriter().print(json);
 	}
@@ -203,7 +211,10 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 	public Set<String> getRequiredPermission(String method) {
 		TreeSet<String> permissions = new TreeSet<String>();
 		permissions.add(ADMIN_PERMISSION);
-		permissions.add(OWN_PERMISSION);
+		
+		if (method.equals("POST"))
+			permissions.add(PUPIL_PERMISSION);
+		else permissions.add(OWN_PERMISSION);
 		
 		if (method.equals("GET"))
 		{

@@ -231,11 +231,11 @@ public class PupilServlet extends AuthenticatedServletRequest {
 					if (targetParams.isEmpty())
 					{
 						List<TargetProgressEntity> list = TargetProgressInformation.findProgressInformationByAncestor(Key.create(pupil), progressParams);
-						json = GsonService.gson.toJson(PupilRecordHelper.constructRecords(list));
+						json = GsonService.gson().toJson(PupilRecordHelper.constructRecords(list));
 					}
 					else {
 						List<PupilTargetEntity> list = PupilTargetInformation.findTargetInformationByPupil(pupil, targetParams);
-						json = GsonService.gson.toJson(PupilRecordHelper.constructRecordsFromTargets(list));
+						json = GsonService.gson().toJson(PupilRecordHelper.constructRecordsFromTargets(list));
 					}
 				}
 				else {

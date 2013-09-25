@@ -46,15 +46,24 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 
 		Key<SubjectEntity> subjectKey = UrlPathHelper.getKeyFromPath(targetSubjectKey, SubjectEntity.class.getSimpleName());
 		Key<PupilEntity> pupilKey = UrlPathHelper.getKeyFromPath(targetPupilKey, PupilEntity.class.getSimpleName());
+		
 		if (threeLevels == null || fourLevels == null
 				|| fiveLevels == null || pupilKey == null || subjectKey == null)
 		{
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
-		}	
+		}
+		
+		if (!pupilKey.equals(Key.create(req.getAttribute("UserEntity"))))
+		{
+			log.warning(pupilKey.toString());
+			log.warning(Key.create(req.getAttribute("UserEntity")).toString());
+			log.warning("Key comparison failed!");
+			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 
 		int keyStage = -1;
-		
 		try {
 			keyStage = Integer.parseInt(targetKeyStage);			
 		}
@@ -198,7 +207,10 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 	public Set<String> getRequiredPermission(String method) {
 		TreeSet<String> permissions = new TreeSet<String>();
 		permissions.add(ADMIN_PERMISSION);
-		permissions.add(OWN_PERMISSION);
+		
+		if (method.equals("POST"))
+			permissions.add(PUPIL_PERMISSION);
+		else permissions.add(OWN_PERMISSION);
 		
 		if (method.equals("GET"))
 		{

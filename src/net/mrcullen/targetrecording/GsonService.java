@@ -79,9 +79,18 @@ public class GsonService {
 		}
 	}
 	
-	public static Gson gson = new GsonBuilder().serializeNulls()
-			.registerTypeAdapter(Ref.class, new RefSerializer())
-			.registerTypeAdapter(Ref.class, new RefDeserializer()).create();
+	private static ThreadLocal<Gson> gsonObject = new ThreadLocal <Gson> () {
+        	@Override protected Gson initialValue() {
+        		return new GsonBuilder().serializeNulls()
+        				.registerTypeAdapter(Ref.class, new RefSerializer())
+        				.registerTypeAdapter(Ref.class, new RefDeserializer()).create();
+        	}
+	};
+ 
+	
+	public static Gson gson() {
+		return gsonObject.get();
+	}
 	
 	public static String entityToJson (List objList)
 	{
@@ -90,17 +99,17 @@ public class GsonService {
 		{
 			jsonArray.add(entityToJsonTree(obj));
 		}
-		return gson.toJson(jsonArray);
+		return gson().toJson(jsonArray);
 	}
 	
 	public static String entityToJson (Object obj)
 	{
-		return gson.toJson(entityToJsonTree(obj));
+		return gson().toJson(entityToJsonTree(obj));
 	}
 	
 	public static JsonObject entityToJsonTree (Object obj)
 	{
-		JsonObject jsonObject = (JsonObject) gson.toJsonTree(obj);
+		JsonObject jsonObject = (JsonObject) gson().toJsonTree(obj);
 		jsonObject.add("key", new JsonPrimitive (KeyFactory.keyToString(Key.create(obj).getRaw())));
 		return jsonObject;
 	}
@@ -108,6 +117,6 @@ public class GsonService {
 	@SuppressWarnings("rawtypes")
 	public static String keyToJson (Key key)
 	{
-		return gson.toJson(KeyFactory.keyToString(key.getRaw()));
+		return gson().toJson(KeyFactory.keyToString(key.getRaw()));
 	}
 }
