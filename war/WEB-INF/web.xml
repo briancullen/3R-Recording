@@ -84,6 +84,20 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	    <servlet-name>TeacherPageServlet</servlet-name>
 	    <url-pattern>/teacher</url-pattern>
 	</servlet-mapping>
+	
+	<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>profile</web-resource-name>
+            <url-pattern>/api/*</url-pattern>
+            <url-pattern>/pupil/*</url-pattern>
+            <url-pattern>/teacher/*</url-pattern>
+            <url-pattern>/register.html</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+    </security-constraint>
+	
 	<filter>
 	    <filter-name>ObjectifyFilter</filter-name>
         <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
@@ -131,20 +145,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
         <filter-name>APIAuthenticationFilter</filter-name>
         <url-pattern>/api/*</url-pattern>
 	</filter-mapping>
-	
-	<security-constraint>
-        <web-resource-collection>
-            <web-resource-name>profile</web-resource-name>
-            <url-pattern>/api/*</url-pattern>
-            <url-pattern>/pupil/*</url-pattern>
-            <url-pattern>/teacher/*</url-pattern>
-            <url-pattern>/register.html</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>*</role-name>
-        </auth-constraint>
-    </security-constraint>
-	
+		
 	<welcome-file-list>
 	    <welcome-file>index.html</welcome-file>
 	</welcome-file-list>

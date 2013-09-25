@@ -39,24 +39,10 @@ public class UserAuthentication implements Filter {
 	public void doFilter(ServletRequest req, ServletResponse resp,
 			FilterChain chain) throws IOException, ServletException
 	{
-		if (((HttpServletRequest)req).getRequestURL().indexOf("/_ah/") != -1)
-		{
-			chain.doFilter(req,  resp);
-			return;
-		}
-		
 		UserService userService = UserServiceFactory.getUserService();
 		User userInfo = userService.getCurrentUser();
 		
 		String requiredRole = filterConfig.getInitParameter("RequiredRole");
-		
-		if (userInfo == null)
-		{
-			/* Shouldn't be possible on proper authentication has been added. */
-			((HttpServletResponse)resp).sendRedirect("/");
-		    return;
-		}
-		
 		String userEmail = userInfo.getEmail();
 		req.setAttribute("UserEmail", userEmail);
 		
@@ -93,6 +79,7 @@ public class UserAuthentication implements Filter {
 			{
 				// not registered need to kick to registration page.
 				((HttpServletResponse)resp).sendRedirect(filterConfig.getInitParameter("RegistrationPage"));
+				return;
 			}
 		} 
 		chain.doFilter(req, resp);
