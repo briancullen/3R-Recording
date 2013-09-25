@@ -55,7 +55,10 @@ var dataStore = new function () {
 					
 					callback(progressToTargets[year][type]);
 					loading("hide");
-				}).fail(function () { loading("hide"); alert("Unable to load progress records from server"); });
+				}).fail(function (jqXHR, textStatus, errorThrown) {
+					loading("hide"); alert("Unable to load progress records from server");
+					console.error(textStatus + ": " + errorThrown);
+				});
 		};
 		
 		this.create = function (newProgressData, callback) {
@@ -66,7 +69,10 @@ var dataStore = new function () {
 				progressToTargets[data.progress.yearGroup][data.progress.recordType][data.progress.key] = data;
 				callback(data);
 				loading("hide");
-			}, "json").fail(function ()	{ loading("hide"); alert("Unable to save the record!"); });
+			}, "json").fail(function (jqXHR, textStatus, errorThrown)	{
+				loading("hide"); alert("Unable to save the record!");
+				console.error(textStatus + ": " + errorThrown);
+			});
 			
 		};
 		
@@ -78,7 +84,11 @@ var dataStore = new function () {
 				progressToTargets[data.progress.yearGroup][data.progress.recordType][data.progress.key] = data;
 				callback(data);
 				loading("hide");
-			}).fail (function() { loading("hide"); alert("Unable to save the record!"); });
+			}).fail (function(jqXHR, textStatus, errorThrown) {
+				loading("hide");
+				alert("Unable to save the record!");
+				console.error(textStatus + ": " + errorThrown);
+			});
 		}
 		
 		this.remove = function (progressKey, year, type, callback) {
@@ -89,7 +99,11 @@ var dataStore = new function () {
 				delete progressToTargets[year][type][progressKey];
 				callback(progressToTargets[year][type]);
 				loading("hide");
-			}).fail(function () { loading("hide"); alert("Unable to delete the record specified!"); });
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				loading("hide");
+				alert("Unable to delete the record specified!");
+				console.error(textStatus + ": " + errorThrown);
+			});
 		};
 		
 	};
@@ -116,7 +130,11 @@ var dataStore = new function () {
 				}
 				callback(subjects);
 				loading("hide");
-			}, "json").fail(function () { loading("hide"); alert("Unable to load subjects from server");});
+			}, "json").fail(function (jqXHR, textStatus, errorThrown) {
+				loading("hide");
+				alert("Unable to load subjects from server");
+				console.error(textStatus + ": " + errorThrown);
+			});
 		};
 		
 		// Gets a list of the subjects that have targets associated with them. Does this
@@ -177,7 +195,11 @@ var dataStore = new function () {
 	
 				callback(targetsForSubjects[keyStage]);
 				loading("hide");
-			}, "json").fail(function () { loading("hide"); alert("Unable to load targets from server");});
+			}, "json").fail(function (jqXHR, textStatus, errorThrown) {
+				loading("hide");
+				alert("Unable to load targets from server");
+				console.error(textStatus + ": " + errorThrown);
+			});
 		};
 		
 		this.remove = function (targetKey, keyStage, callback)
@@ -191,7 +213,11 @@ var dataStore = new function () {
 						callback(targetsForSubjects);
 						loading("hide");
 					})
-				.fail(function () { loading("hide"); alert("Unable to delete the record specified!"); });
+				.fail(function (jqXHR, textStatus, errorThrown) {
+					loading("hide");
+					alert("Unable to delete the record specified!");
+					console.error(textStatus + ": " + errorThrown);
+				});
 		};
 		
 		this.update = function (targetKey, keyStage, targetData, callback)
@@ -205,7 +231,11 @@ var dataStore = new function () {
 					target.fiveLevelsTargetGrade = targetData.FiveLevelsTarget;
 					callback(targetsForSubjects);
 					loading("hide");
-				}).fail(function () { loading("hide"); alert("Unable to update the record specified!"); });
+				}).fail(function (jqXHR, textStatus, errorThrown) {
+					loading("hide");
+					alert("Unable to update the record specified!");
+					console.error(textStatus + ": " + errorThrown);
+				});
 		};
 		
 		this.create = function (subjectKey, keyStage, callback) {
@@ -223,7 +253,11 @@ var dataStore = new function () {
 					subjectsWithTargets[keyStage][newTarget.subject.key] = newTarget.subject;
 					callback(newTarget);
 					 loading("hide");
-				}, "json").fail(function ()	{ loading("hide"); alert("Unable to save the record!"); });
+				}, "json").fail(function (jqXHR, textStatus, errorThrown) {
+					loading("hide");
+					alert("Unable to save the record!");
+					console.error(textStatus + ": " + errorThrown);
+				});
 		};
 	};
 			
