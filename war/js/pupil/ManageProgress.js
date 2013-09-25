@@ -26,7 +26,8 @@ var progressHandler = new function () {
 			selectedYear = year;
 			dataStore.progress.get(selectedYear, selectedType, progressHandler.updateProgressTable);
 			dataStore.targets.get(yearToKeyStage(selectedYear),function (targets) {
-				if ($.isEmptyObject(targets))
+				
+				if ((dataStore.pupil.year != selectedYear) || ($.isEmptyObject(targets)))
 					$('#addProgressBtn').addClass("ui-disabled");
 				else $('#addProgressBtn').removeClass("ui-disabled");
 			});
@@ -78,7 +79,7 @@ var progressHandler = new function () {
 					$('#pupilRecordsPageFooter a[data-recordtype="' + selectedType + '"]').addClass('ui-btn-active');
 					
 						dataStore.targets.get(yearToKeyStage(selectedYear),function (targets) {
-						if ($.isEmptyObject(targets))
+						if ((dataStore.pupil.year != selectedYear) || ($.isEmptyObject(targets)))
 							$('#addProgressBtn').addClass("ui-disabled");
 						else $('#addProgressBtn').removeClass("ui-disabled");
 					});
