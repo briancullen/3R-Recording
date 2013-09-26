@@ -150,6 +150,7 @@ var progressHandler = new function () {
 	};
 	
 	this.createProgressRecord = function () {
+		$('#recordDialogSubmit').addClass("ui-disabled");
 		var record = { TargetType: selectedType,
 						TargetYear: selectedYear,
 						TargetCurrentLevel: $('#recordDialogCurrentLevel').val(),
