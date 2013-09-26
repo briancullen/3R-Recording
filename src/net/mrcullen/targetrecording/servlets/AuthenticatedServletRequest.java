@@ -85,7 +85,8 @@ public abstract class AuthenticatedServletRequest extends HttpServlet {
 		{
 			return true;
 		}
-		else if ((permissions.contains(OWN_PERMISSION)) && (entityKeyString != null))
+		
+		if ((permissions.contains(OWN_PERMISSION)) && (entityKeyString != null))
 		{
 			String authenticatedUserKeyString = (String) request.getAttribute("UserEntityKey");
 			
@@ -102,21 +103,35 @@ public abstract class AuthenticatedServletRequest extends HttpServlet {
 				
 				entityKey = entityKey.getParent();
 			}
-			return false;
-		}
-		else if (permissions.contains(PUPIL_PERMISSION))
-		{
-			return !(((Boolean)request.getAttribute("TeacherType")).booleanValue());
-		}
-		else if (permissions.contains(TEACHER_PERMISSION))
-		{
-			return ((Boolean)request.getAttribute("TeacherType")).booleanValue();
-		}
-		else if (permissions.contains(ADMIN_PERMISSION))
-		{
-			return ((Boolean)request.getAttribute("UserAdmin")).booleanValue();
+			
+			log.warning("[" + request.getMethod() + "] Refused as entity not related to user.");
 		}
 		
+		if (permissions.contains(PUPIL_PERMISSION))
+		{
+			if (!(((Boolean)request.getAttribute("TeacherType")).booleanValue()))
+				return true;
+			
+			log.warning("[" + request.getMethod() + "] Refused as user is not a pupil type.");
+		}
+		
+		if (permissions.contains(TEACHER_PERMISSION))
+		{
+			if (((Boolean)request.getAttribute("TeacherType")).booleanValue())
+				return true;
+			
+			log.warning("[" + request.getMethod() + "] Refused as user is not a teacher type.");
+		}
+		
+		if (permissions.contains(ADMIN_PERMISSION))
+		{
+			if (((Boolean)request.getAttribute("UserAdmin")).booleanValue())
+				return true;
+			
+			log.warning("[" + request.getMethod() + "] Refused as user is not an admin.");
+		}
+		
+		log.warning("[" + request.getMethod() + "] Refused as no permissions match.");
 		return false;
 	}	
 }
