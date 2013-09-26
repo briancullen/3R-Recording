@@ -30,8 +30,13 @@
 					</select>
 				</div>
 				<div data-role="fieldcontain">
-				    <label for="studentRegistrationFormForm">Form:</label>
-					<select name="UserFormKey" id="studentRegistrationFormForm" data-mini="true">
+				    <label for="studentRegistrationYearGroup">Year Group:</label>
+					<select id="studentRegistrationYearGroup" data-mini="true">
+					</select>
+				</div>
+				<div data-role="fieldcontain">
+				    <label for="studentRegistrationFormCode">Form Code:</label>
+					<select name="UserFormKey" id="studentRegistrationFormCode" data-mini="true">
 					</select>
 				</div>
 				<a id="studentRegistrationFormSubmit" data-role="button" data-theme="b">Submit</a>
