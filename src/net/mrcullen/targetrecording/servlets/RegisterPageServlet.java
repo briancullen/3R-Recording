@@ -31,6 +31,7 @@ public class RegisterPageServlet extends HttpServlet {
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
 		{
+			log.warning("[POST] Unexpected path in URL (" + req.getPathInfo() + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -38,16 +39,21 @@ public class RegisterPageServlet extends HttpServlet {
 		String newUserEmail = req.getParameter("UserEmail");
 		if (newUserEmail == null)
 		{
+			log.warning("[POST] User email not specified as part of request.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		
 		String newUserName = req.getParameter("UserName");
+		if ((newUserName == null) || (newUserName.isEmpty()))
+			newUserName = newUserEmail;
+		
+		
 		Key<FormEntity> newUserFormKey = UrlPathHelper.getKeyFromPath(req.getParameter("UserFormKey"), FormEntity.class.getSimpleName());
 		
 		if ((newUserFormKey == null) || (FormInformation.getForm(newUserFormKey) == null))
 		{
-			log.warning("invalid key");
+			log.warning("[POST] Invalid or malformed form key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;				
 		}
@@ -58,6 +64,7 @@ public class RegisterPageServlet extends HttpServlet {
 		String json = "[ ]";
 		if (key != null)
 			json = GsonService.keyToJson(key);
+		else log.severe("[POST] No key returned on attempt to save target entity to database");
 		
 		resp.getWriter().print(json);
 	}
@@ -70,6 +77,7 @@ public class RegisterPageServlet extends HttpServlet {
 		
 		if (userInfo == null)
 		{
+			log.severe("[GET] No logged in user - shouldn't be able to happen!");
 			// Shouldn't be able to happen!
 			((HttpServletResponse)resp).sendRedirect(userService.createLoginURL(((HttpServletRequest)req).getRequestURL().toString()));
 		    return;
@@ -81,6 +89,7 @@ public class RegisterPageServlet extends HttpServlet {
 		PupilEntity pupil = PupilInformation.getPupil(userEmail);
 		if (pupil != null)
 		{
+			log.warning("[GET] Pupil already registered - denying access.");
 			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}

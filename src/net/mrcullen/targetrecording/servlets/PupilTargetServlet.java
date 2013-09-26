@@ -33,6 +33,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
 		{
+			log.warning("[POST] Unexpected path in URL (" + req.getPathInfo() + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -50,15 +51,14 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		if (threeLevels == null || fourLevels == null
 				|| fiveLevels == null || pupilKey == null || subjectKey == null)
 		{
+			log.warning("[POST] Malformed or missing parameters passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		
 		if (!pupilKey.equals(Key.create(req.getAttribute("UserEntity"))))
 		{
-			log.warning(pupilKey.toString());
-			log.warning(Key.create(req.getAttribute("UserEntity")).toString());
-			log.warning("Key comparison failed!");
+			log.warning("[POST] Attempt to create entity for different user.");
 			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -68,6 +68,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			keyStage = Integer.parseInt(targetKeyStage);			
 		}
 		catch (NumberFormatException ex) {
+			log.warning("[POST] Malformed key stage parameter passed to server (" + keyStage + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -77,6 +78,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		if ((keyStage < 3 || keyStage > 5)
 				|| (pupil == null) || (subject == null))
 		{
+			log.warning("[POST] Invalid key stage parameter passed to server (" + keyStage + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;				
 		}
@@ -86,6 +88,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		parameters.put("subject", subjectKey);
 		if (!PupilTargetInformation.findTargetInformationByPupil(pupil, parameters).isEmpty())
 		{
+			log.warning("[POST] Target already exists for the specified tuple (" + keyStage + ", " + subject.getName() + ")");
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;										
 		}
@@ -94,6 +97,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		PupilTargetEntity newTarget = new PupilTargetEntity(pupil, subject, keyStage);
 		if (!newTarget.setTargetGrades(threeLevels, fourLevels, fiveLevels))
 		{
+			log.warning("[POST] Invalid target grades passed to the server (" + threeLevels + "," + fourLevels + "," + fiveLevels + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;							
 		}
@@ -104,6 +108,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		String json = "{ }";
 		if (key != null)
 			json = GsonService.entityToJson(newTarget);
+		else log.severe("[POST] No key returned on attempt to save target entity to database");
 		
 		resp.getWriter().print(json);
 	}
@@ -115,6 +120,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		Key<PupilTargetEntity> key = UrlPathHelper.getKeyFromPath(req.getPathInfo(), PupilTargetEntity.class.getSimpleName());
 		if (key == null)
 		{
+			log.warning("[PUT] Invalid target key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -122,6 +128,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		PupilTargetEntity target = PupilTargetInformation.getPupilTargetEntity(key);
 		if (target == null)
 		{
+			log.warning("[PUT] Unable to find entity for the provided target key.");
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;			
 		}
@@ -136,10 +143,13 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			int keyStage = -1;
 			try {
 				keyStage = Integer.parseInt(targetKeyStage);
-			} catch (Exception ex) { }
+			} catch (Exception ex) {
+				log.warning("[PUT] Malformed key stage parameter passed to server (" + targetKeyStage + ")");
+			}
 			
 			if (!target.setKeyStage(keyStage))
 			{
+				log.warning("[PUT] Invalid key stage parameter passed to server (" + keyStage + ")");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;								
 			}
@@ -149,6 +159,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		{
 			if (!target.setTargetGrades(threeLevels, fourLevels, fiveLevels))
 			{
+				log.warning("[POST] Invalid target grades passed to the server (" + threeLevels + "," + fourLevels + "," + fiveLevels + ")");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;				
 			}
@@ -159,6 +170,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		String json = "{ }";
 		if (key != null)
 			json = GsonService.entityToJson(target);
+		else log.severe("[PUT] No key returned on attempt to save target entity to database");
 		
 		resp.getWriter().print(json);		
 	}
@@ -171,6 +183,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		Key<PupilTargetEntity> key = UrlPathHelper.getKeyFromPath(req.getPathInfo(), PupilTargetEntity.class.getSimpleName());
 		if (key == null)
 		{
+			log.warning("[DELETE] Malformed key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -192,6 +205,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			if (pupilTarget != null)
 				json = GsonService.entityToJson(pupilTarget);
 			else {
+				log.warning("[GET] No entity found to match the specified key.");
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}

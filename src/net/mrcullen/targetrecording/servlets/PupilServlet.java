@@ -40,6 +40,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
 		{
+			log.warning("[POST] Unexpected path in URL (" + req.getPathInfo() + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -47,16 +48,20 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		String newUserEmail = req.getParameter("UserEmail");
 		if (newUserEmail == null)
 		{
+			log.warning("[POST] User email not specified as part of request.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		
 		String newUserName = req.getParameter("UserName");
+		if ((newUserName == null) || (newUserName.isEmpty()))
+			newUserName = newUserEmail;
+		
 		Key<FormEntity> newUserFormKey = UrlPathHelper.getKeyFromPath(req.getParameter("UserFormKey"), FormEntity.class.getSimpleName());
 		
 		if ((newUserFormKey == null) || (FormInformation.getForm(newUserFormKey) == null))
 		{
-			log.warning("invalid key");
+			log.warning("[POST] Invalid or malformed form key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;				
 		}
@@ -67,6 +72,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		String json = "[ ]";
 		if (key != null)
 			json = GsonService.keyToJson(key);
+		else log.severe("[POST] No key returned on attempt to save target entity to database");
 		
 		resp.getWriter().print(json);
 	}
@@ -78,12 +84,14 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		if (pupilKey == null)
 		{
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			log.warning("[PUT] Invalid or malformed pupil key passed to server.");
 			return;
 		}
 
 		PupilEntity pupil = PupilInformation.getPupil(pupilKey);
 		if (pupil == null)
 		{
+			log.warning("[PUT] No pupil entity found to match the provided key.");
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;			
 		}
@@ -98,18 +106,19 @@ public class PupilServlet extends AuthenticatedServletRequest {
 			Key<FormEntity> formKey = UrlPathHelper.getKeyFromPath(newUserFormKey, FormEntity.class.getSimpleName());
 			if (FormInformation.getForm(formKey) == null)
 			{
+				log.warning("[PUT] Invalid or malformed form key passed to server.");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;				
 			}
 			pupil.setForm(Ref.create(formKey));
 		}
 
-		
-		Key<PupilEntity> key = PupilInformation.savePupil(pupil);
+				Key<PupilEntity> key = PupilInformation.savePupil(pupil);
 		
 		String json = "[ ]";
 		if (key != null)
 			json = GsonService.keyToJson(key);
+		else log.severe("[PUT] No key returned on attempt to save target entity to database");
 		
 		resp.getWriter().print(json);		
 	}
@@ -121,6 +130,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		Key<PupilEntity> pupilKey = UrlPathHelper.getKeyFromPath(req.getPathInfo(), PupilEntity.class.getSimpleName());
 		if (pupilKey == null)
 		{
+			log.warning("[DELETE] Malformed key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -128,6 +138,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		PupilEntity pupil = PupilInformation.getPupil(pupilKey);
 		if (pupil == null)
 		{
+			log.warning("[DELETE] No entity found to match the provided key.");
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -149,6 +160,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 			if (pupil != null)
 				json = GsonService.entityToJson(pupil);
 			else {
+				log.warning("[GET] No entity found to match the specified key.");
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
@@ -180,7 +192,11 @@ public class PupilServlet extends AuthenticatedServletRequest {
 							targetParams.put("subject", subjectId);
 						}
 					}
-					catch (Exception ex) {	}
+					catch (Exception ex) {
+						log.severe("[GET] Exception thrown while process pupil target search: " + ex.toString());
+						resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+						return;
+					}
 					
 					List<PupilTargetEntity> list = PupilTargetInformation.findTargetInformationByPupil(pupil, targetParams);
 					json = GsonService.entityToJson(list);
@@ -226,7 +242,11 @@ public class PupilServlet extends AuthenticatedServletRequest {
 							progressParams.put("recordType", recordType);
 						}
 					}
-					catch (Exception ex) { resp.sendError(HttpServletResponse.SC_BAD_REQUEST); return;	}
+					catch (Exception ex) {
+						log.severe("[GET] Exception thrown while process pupil progress search: " + ex.toString());
+						resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+						return;
+					}
 					
 					if (targetParams.isEmpty())
 					{
@@ -239,6 +259,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 					}
 				}
 				else {
+					log.warning("[GET] Unrecognised search type requested (" + searchType + ")");	
 					resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 					return;
 				}
@@ -252,7 +273,11 @@ public class PupilServlet extends AuthenticatedServletRequest {
 				long formId = -1;
 				try {
 					formId = Long.parseLong(formIdParam);
-				} catch (Exception ex) { resp.sendError(HttpServletResponse.SC_BAD_REQUEST); return; }
+				} catch (Exception ex) {
+					log.warning("[GET] Unable to parse formID (" + formIdParam + ")");
+					resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
 				
 				list = PupilInformation.getPupilsByForm(Key.create(FormEntity.class, formId));
 			}

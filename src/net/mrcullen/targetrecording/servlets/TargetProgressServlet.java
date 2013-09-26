@@ -34,6 +34,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 	{
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
 		{
+			log.warning("[POST] Unexpected path in URL (" + req.getPathInfo() + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -48,6 +49,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		if (targetProgress == null || targetType == null || targetKey == null
 				|| currentLevel == null || targetId == null)
 		{
+			log.warning("[POST] Malformed or missing parameters passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -55,6 +57,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		PupilTargetEntity pupilTarget = PupilTargetInformation.getPupilTargetEntity(targetKey);
 		if (pupilTarget == null)
 		{
+			log.warning("[POST] Invalid key for PupilTarget provided.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -62,6 +65,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		PupilEntity pupilEntity = pupilTarget.getPupil();
 		if (!Key.create(pupilEntity).equals(Key.create(req.getAttribute("UserEntity"))))
 		{
+			log.warning("[POST] Attempt to create entity for different user.");
 			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -71,6 +75,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 			year = Integer.parseInt(yearParam);
 		} catch (Exception ex)
 		{
+			log.warning("[POST] Malformed year parameter passed to server (" + yearParam + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;			
 		}
@@ -80,6 +85,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 				(!progress.setLevel(currentLevel)) ||
 				(!progress.setRecordType(targetType)))
 		{
+			log.warning("[POST] Unable to set attributes of the new progress entity.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;			
 		}
@@ -91,6 +97,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		String json = "{ }";
 		if (key != null)
 			json = GsonService.gson().toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
+		else log.severe("[POST] No key returned on attempt to save progress entity to database");
 		
 		resp.getWriter().print(json);
 	}
@@ -102,6 +109,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		Key<TargetProgressEntity> key = UrlPathHelper.getKeyFromPath(req.getPathInfo(), TargetProgressEntity.class.getSimpleName());
 		if (key == null)
 		{
+			log.warning("[PUT] Invalid progress key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -109,6 +117,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		TargetProgressEntity target = TargetProgressInformation.getTargetProgressEntity(key);
 		if (target == null)
 		{
+			log.warning("[PUT] Unable to find entity for the provided progress key.");
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;			
 		}
@@ -125,7 +134,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		{
 			if (!target.setRecordType(targetType))
 			{
-				
+				log.warning("[PUT] Invalid record type passed to server (" + targetType + ")");
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;							
 			}
@@ -138,12 +147,14 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 				year = Integer.parseInt(yearParam);
 			} catch (Exception ex)
 			{
+				log.warning("[PUT] Invalid integer passed as year to server (" + yearParam + ")");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;			
 			}
 			
 			if (!target.setYearGroup(year))
 			{
+				log.warning("[PUT] Invalid year group passed to server (" + yearParam + ")");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;							
 			}
@@ -153,6 +164,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		{
 			if (!target.setLevel(currentLevel))
 			{
+				log.warning("[PUT] Invalid current level passed to server (" + currentLevel + ")");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;			
 			}
@@ -163,6 +175,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		String json = "{ }";
 		if (key != null)
 			json = GsonService.gson().toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
+		else log.severe("[PUT] No key returned on attempt to update progress entity in database");
 		
 		resp.getWriter().print(json);
 	}
@@ -175,6 +188,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		Key<TargetProgressEntity> key = UrlPathHelper.getKeyFromPath(req.getPathInfo(), TargetProgressEntity.class.getSimpleName());
 		if (key == null)
 		{
+			log.warning("[DELETE] Malformed key passed to server.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -196,6 +210,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 			if (progress != null)
 				json = GsonService.entityToJson(progress);
 			else {
+				log.warning("[DELETE] Key passed to server does not reference an entity.");
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
