@@ -125,14 +125,12 @@
 		<div data-role="content">
 			<div class="ui-grid-a">
 				<div class="ui-block-a">
-					<fieldset id="manageTargetsKeyStage" style="text-align: center;" data-role="controlgroup" data-type="horizontal" >
-	        			<input type="radio" name="manageTargetsKeyStage" id="manageTargetsKeyStage3" value="3" checked="checked">
-	        			<label for="manageTargetsKeyStage3">KS3</label>
-	        			<input type="radio" name="manageTargetsKeyStage" id="manageTargetsKeyStage4" id="radio-choice-d" value="4">
-	        			<label for="manageTargetsKeyStage4">KS4</label>
-	        			<input type="radio" name="manageTargetsKeyStage" id="manageTargetsKeyStage5" id="radio-choice-e" value="5">
-	        			<label for="manageTargetsKeyStage5">KS5</label>
-					</fieldset>
+					<select name="manageTargetsStage" id="manageTargetsStage">
+						<option value="7">Year 7</option>
+						<option value="8">Year 8</option>
+						<option value="4">Key Stage 4</option>
+						<option value="5">Key Stage 5</option>
+					</select>
 					<div class="seperateItems">
 						<a data-role="button" href="#manageTargetAddSubjectPopup" data-position-to="window" data-rel="popup" id="manageTargetsAddBtn" data-icon="plus">Add Target</a>
 					</div>
@@ -194,7 +192,7 @@
 		                         email: "${UserEmail}",
 	                         	 form: "${UserEntity.form.value.formCode}",
 		                         year: "${UserEntity.form.value.yearGroup}",
-		                         keyStage: "${UserEntity.form.value.keyStage}",
+		                         stage: "${UserEntity.form.value.stage}",
 		                         key: "${UserEntityKey}" };
 		
 		function loading(showOrHide) {

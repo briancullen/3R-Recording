@@ -11,9 +11,45 @@ var progressHandler = new function () {
 		if (type != selectedType)
 		{
 			selectedType = type;
-			dataStore.progress.get(selectedYear, selectedType, progressHandler.updateProgressTable);
+			dataStore.progress.get(selectedYear, selectedType, progressHandler.redrawProgressTable);
 		}
 	};
+	
+	function addRowToFootable (record)
+	{
+		var footable = $('#pupilRecordTable').data("footable");
+		var jQueryRow = $.parseHTML('<tr>'
+				 + '<td>' + record.target.subject.name + '</td>\
+		         <td>' + record.target.threeLevelsTargetGrade + '</td>\
+		         <td>' + record.target.fourLevelsTargetGrade + '</td>\
+		         <td>' + record.target.fiveLevelsTargetGrade + '</td>\
+		         <td>' + record.progress.currentLevel + '</td>\
+			     <td>' + record.progress.nextSteps + '</td>\
+			     <td><div data-role="controlgroup" data-type="horizontal" data-mini="true"><a \
+			     	href="#progressRecordDialog" data-rel="dialog" data-recordkey="'
+			     	+ record.progress.key + '" data-icon="gear">Edit</a>\
+			     <a href="#" data-recordkey="' + record.progress.key
+					+ '" data-icon="delete">Delete</a></div></td></tr>');
+		
+		footable.appendRow(jQueryRow);
+		
+		$(jQueryRow).on("click", 'a[data-icon="delete"]', function (eventObj) {
+			$(eventObj.currentTarget).addClass("ui-disabled");
+			$(eventObj.currentTarget).siblings().addClass("ui-disabled");
+			var recordKey = $(eventObj.currentTarget).data('recordkey');
+			dataStore.progress.remove(recordKey, selectedYear, selectedType, function () {
+				var footable = $('#pupilRecordTable').data("footable");
+				var tableRow = $(eventObj.currentTarget).closest("tr");
+				footable.removeRow(tableRow);				
+			});
+		});
+		
+		$(jQueryRow).on("click", 'a[data-icon="gear"]', function (eventObj) {
+			$(eventObj.currentTarget).addClass("ui-disabled");
+			$(eventObj.currentTarget).siblings().addClass("ui-disabled");
+			$('#recordDialogForm').data('recordkey', $(eventObj.currentTarget).data('recordkey'));
+		});
+	}
 	
 	// Change the year saved when a new year is clicked in
 	// the year view popup. Only refreshes the records if
@@ -24,8 +60,8 @@ var progressHandler = new function () {
 		if (year != selectedYear)
 		{
 			selectedYear = year;
-			dataStore.progress.get(selectedYear, selectedType, progressHandler.updateProgressTable);
-			dataStore.targets.get(yearToKeyStage(selectedYear),function (targets) {
+			dataStore.progress.get(selectedYear, selectedType, progressHandler.redrawProgressTable);
+			dataStore.targets.get(yearToStage(selectedYear),function (targets) {
 				
 				if ((dataStore.pupil.year != selectedYear) || ($.isEmptyObject(targets)))
 					$('#addProgressBtn').addClass("ui-disabled");
@@ -42,7 +78,8 @@ var progressHandler = new function () {
 		    	tablet: 900,
 		    	desktop: 1150,
 		    	widedesktop: 1500
-		    }
+		    },
+		    addRowToggle: false
 		});
 		
 		$('#pupilRecordsPage').on('pageshow', $('#pupilRecordTable').data("footable").resize);
@@ -78,14 +115,15 @@ var progressHandler = new function () {
 					$('#pupilRecordsPageFooter a').removeClass('ui-btn-active');
 					$('#pupilRecordsPageFooter a[data-recordtype="' + selectedType + '"]').addClass('ui-btn-active');
 					
-						dataStore.targets.get(yearToKeyStage(selectedYear),function (targets) {
+						dataStore.targets.get(yearToStage(selectedYear),function (targets) {
 						if ((dataStore.pupil.year != selectedYear) || ($.isEmptyObject(targets)))
 							$('#addProgressBtn').addClass("ui-disabled");
 						else $('#addProgressBtn').removeClass("ui-disabled");
 					});
 		});
-		$('#pupilRecordsPage').on("pageshow", function () {
-			dataStore.progress.get(selectedYear, selectedType, progressHandler.updateProgressTable, true);
+		$('#pupilRecordsPage').on("pageshow", function (event, ui) {
+			if ((ui.prevPage[0] === undefined) || (ui.prevPage[0].id != "progressRecordDialog"))
+				dataStore.progress.get(selectedYear, selectedType, progressHandler.redrawProgressTable, true);
 		});
 		
 		$('#recordDialogSubmit').click(progressHandler.createProgressRecord);
@@ -104,7 +142,7 @@ var progressHandler = new function () {
 		$('#recordDialogTarget').val("");
 		$('#recordDialogSubmit').addClass("ui-disabled");
 		
-		dataStore.targets.get(yearToKeyStage(selectedYear),function (targets) {
+		dataStore.targets.get(yearToStage(selectedYear),function (targets) {
 
 			$('#recordDialogSubject').empty();
 			for (var key in targets)
@@ -139,7 +177,7 @@ var progressHandler = new function () {
 	this.updateDialogLevelSelect = function (eventObj)
 	{
 		var vocational = $('#recordDialogSubject option[value="' + $('#recordDialogSubject').val() + '"]').data("vocational");
-		var	grades = getGrades(yearToKeyStage(selectedYear), vocational);
+		var	grades = getGrades(yearToStage(selectedYear), vocational);
 		
 		$('#recordDialogCurrentLevel').empty();
 		for (var index in grades)
@@ -150,6 +188,7 @@ var progressHandler = new function () {
 	};
 	
 	this.createProgressRecord = function () {
+		var footable = $('#pupilRecordTable').data("footable");
 		$('#recordDialogSubmit').addClass("ui-disabled");
 		var record = { TargetType: selectedType,
 						TargetYear: selectedYear,
@@ -161,59 +200,30 @@ var progressHandler = new function () {
 		if ((key !== undefined) && (key != ""))
 		{
 			dataStore.progress.update(key, record, function (data) {
-				dataStore.progress.get(selectedYear, selectedType, progressHandler.updateProgressTable);
+				var footable = $('#pupilRecordTable').data("footable");
+				var tableRow = $('#pupilRecordTable a[data-recordkey="' + data.progress.key + '"]').closest("tr");
+				footable.removeRow(tableRow);
+				addRowToFootable(data);
 			});
 		}
 		else {
 			dataStore.progress.create(record, function (data) {
-				dataStore.progress.get(selectedYear, selectedType, progressHandler.updateProgressTable);
+				addRowToFootable(data);
 			});
 		}
 	}
 	
-	this.updateProgressTable = function (data)
+	this.redrawProgressTable = function (data)
 	{
 		var footable = $('#pupilRecordTable').data("footable");
-		// $('#pupilRecordTable tbody').empty();
 		$('#pupilRecordTable tbody tr').each(function (index){ footable.removeRow($(this)); });
 	
 		if (!$.isEmptyObject(data))
 		{
-			
 			for (var key in data)
 			{
-				var record = data[key];
-				console.log(record);
-				footable.appendRow('<tr>'
-						 + '<td>' + record.target.subject.name + '</td>\
-				         <td>' + record.target.threeLevelsTargetGrade + '</td>\
-				         <td>' + record.target.fourLevelsTargetGrade + '</td>\
-				         <td>' + record.target.fiveLevelsTargetGrade + '</td>\
-				         <td>' + record.progress.currentLevel + '</td>\
-					     <td>' + record.progress.nextSteps + '</td>\
-					     <td><div data-role="controlgroup" data-type="horizontal" data-mini="true"><a \
-					     	href="#progressRecordDialog" data-rel="dialog" data-recordkey="'
-					     	+ record.progress.key + '" data-icon="gear">Edit</a>\
-					     <a href="#" data-recordkey="' + record.progress.key
-							+ '" data-icon="delete">Delete</a></div></td></tr>');
+				addRowToFootable(data[key]);
 			}
-			
-			
-			// Styles the newly created buttons.
-			// $('#pupilRecordTable a').button();
-			$('#pupilRecordTable div').controlgroup();
-			
-			// Adds handlers to the newly created buttons.
-			$('#pupilRecordTable').on("click", 'a[data-icon="delete"]', function (eventObj) {
-				console.log("Delete triggered");
-				var recordKey = $(eventObj.currentTarget).data('recordkey');
-				dataStore.progress.remove(recordKey, selectedYear, selectedType, progressHandler.updateProgressTable);
-			});
-			
-			$('#pupilRecordTable').on("click", 'a[data-icon="gear"]', function (eventObj) {
-				console.log("Click for gears!");
-				$('#recordDialogForm').data('recordkey', $(eventObj.currentTarget).data('recordkey'));
-			});
 			
 			$('#manageProgressNotFoundBanner').hide();
 		}
