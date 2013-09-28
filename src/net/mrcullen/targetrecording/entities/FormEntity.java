@@ -41,8 +41,8 @@ public class FormEntity {
 		return currentYear - intakeYear + 7;
 	}
 	
-	public int getKeyStage() {
-		return GradeHelper.getKeyStage(getYearGroup());
+	public int getStage() {
+		return GradeHelper.getStage(getYearGroup());
 	}
 
 	public void setFormCode(String newFormCode) {

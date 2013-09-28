@@ -15,7 +15,7 @@ public class PupilTargetEntity {
 	@Id private Long pupilTargetId;
 	@Load @Parent private Ref<PupilEntity> pupil;
 	@Load @Index private Ref<SubjectEntity> subject;
-	@Index private int keyStage;
+	@Index private int targetStage;
 
 	private String threeLevelsTargetGrade;
 	private String fourLevelsTargetGrade;
@@ -25,41 +25,41 @@ public class PupilTargetEntity {
 	{
 		pupil = null;
 		subject = null;
-		keyStage = 3;
+		targetStage = 7;
 		
 		threeLevelsTargetGrade = GradeHelper.KS3_TARGET_GRADES[3];
 		fourLevelsTargetGrade = GradeHelper.KS3_TARGET_GRADES[4];
 		fiveLevelsTargetGrade = GradeHelper.KS3_TARGET_GRADES[5];
 	}
 	
-	public PupilTargetEntity (PupilEntity pupilEntity, SubjectEntity subjectEntity, int keyStage)
+	public PupilTargetEntity (PupilEntity pupilEntity, SubjectEntity subjectEntity, int stage)
 	{
-		this(Ref.create(pupilEntity), Ref.create(subjectEntity), keyStage);
+		this(Ref.create(pupilEntity), Ref.create(subjectEntity), stage);
 	}
 	
-	public PupilTargetEntity (Ref<PupilEntity> pupilEntity, Ref<SubjectEntity> subjectEntity, int keyStage)
+	public PupilTargetEntity (Ref<PupilEntity> pupilEntity, Ref<SubjectEntity> subjectEntity, int stage)
 	{
 		this();
 		pupil = pupilEntity;
 		subject = subjectEntity;
 		
-		setKeyStage(keyStage);
+		setStage(stage);
 	}
 	
-	public PupilTargetEntity (Long id, Ref<PupilEntity> pupilEntity, Ref<SubjectEntity> subjectEntity, int keyStage)
+	public PupilTargetEntity (Long id, Ref<PupilEntity> pupilEntity, Ref<SubjectEntity> subjectEntity, int stage)
 	{
-		this(pupilEntity, subjectEntity, keyStage);
+		this(pupilEntity, subjectEntity, stage);
 		pupilTargetId = id;
 	}
 	
 	public PupilEntity getPupil() { return pupil.get(); }
 	public SubjectEntity getSubject() { return subject.get(); }
-	public int getKeyStage () { return keyStage; }
-	public boolean setKeyStage (int stage)
+	public int getStage () { return targetStage; }
+	public boolean setStage (int stage)
 	{
-		if ((stage >= 3) && (stage <= 5))
+		if ((stage == 4) || (stage == 5) || (stage == 7) || (stage == 8))
 		{
-			keyStage = stage;
+			targetStage = stage;
 			return true;
 		}
 		else return false;
@@ -72,19 +72,19 @@ public class PupilTargetEntity {
 	public boolean setTargetGrades (String threeLevels, String fourLevels, String fiveLevels)
 	{
 		boolean vocational = isVocational();
-		if (GradeHelper.isValidGradeForKeyStage(threeLevels, vocational, keyStage))
+		if (GradeHelper.isValidGradeForStage(threeLevels, vocational, targetStage))
 		{
 			threeLevelsTargetGrade = threeLevels;
 		}
 		else return false;
 		
-		if (GradeHelper.isValidGradeForKeyStage(fourLevels, vocational, keyStage))
+		if (GradeHelper.isValidGradeForStage(fourLevels, vocational, targetStage))
 		{
 			fourLevelsTargetGrade = fourLevels;
 		}
 		else return false;
 		
-		if (GradeHelper.isValidGradeForKeyStage(fiveLevels, vocational, keyStage))
+		if (GradeHelper.isValidGradeForStage(fiveLevels, vocational, targetStage))
 		{
 			fiveLevelsTargetGrade = fiveLevels;
 		}

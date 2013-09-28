@@ -40,7 +40,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		
 		String targetPupilKey = req.getParameter("TargetPupilKey");
 		String targetSubjectKey = req.getParameter("TargetSubjectKey");
-		String targetKeyStage = req.getParameter("TargetKeyStage");
+		String targetStage = req.getParameter("TargetStage");
 		String threeLevels = req.getParameter("ThreeLevelsTarget");
 		String fourLevels = req.getParameter("FourLevelsTarget");
 		String fiveLevels = req.getParameter("FiveLevelsTarget");
@@ -63,38 +63,38 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			return;
 		}
 
-		int keyStage = -1;
+		int stage = -1;
 		try {
-			keyStage = Integer.parseInt(targetKeyStage);			
+			stage = Integer.parseInt(targetStage);			
 		}
 		catch (NumberFormatException ex) {
-			log.warning("[POST] Malformed key stage parameter passed to server (" + keyStage + ")");
+			log.warning("[POST] Malformed key stage parameter passed to server (" + stage + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		
 		PupilEntity pupil = PupilInformation.getPupil(pupilKey);
 		SubjectEntity subject = SubjectInformation.getSubject(subjectKey);
-		if ((keyStage < 3 || keyStage > 5)
+		if (!((stage == 4) || (stage == 5) || (stage == 7) || (stage == 8))
 				|| (pupil == null) || (subject == null))
 		{
-			log.warning("[POST] Invalid key stage parameter passed to server (" + keyStage + ")");
+			log.warning("[POST] Invalid parameters passed to server (" + stage + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;				
 		}
 
 		HashMap parameters = new HashMap();
-		parameters.put("keyStage", keyStage);
+		parameters.put("stage", stage);
 		parameters.put("subject", subjectKey);
 		if (!PupilTargetInformation.findTargetInformationByPupil(pupil, parameters).isEmpty())
 		{
-			log.warning("[POST] Target already exists for the specified tuple (" + keyStage + ", " + subject.getName() + ")");
+			log.warning("[POST] Target already exists for the specified tuple (" + stage + ", " + subject.getName() + ")");
 			resp.sendError(HttpServletResponse.SC_CONFLICT);
 			return;										
 		}
 		
 
-		PupilTargetEntity newTarget = new PupilTargetEntity(pupil, subject, keyStage);
+		PupilTargetEntity newTarget = new PupilTargetEntity(pupil, subject, stage);
 		if (!newTarget.setTargetGrades(threeLevels, fourLevels, fiveLevels))
 		{
 			log.warning("[POST] Invalid target grades passed to the server (" + threeLevels + "," + fourLevels + "," + fiveLevels + ")");
@@ -133,23 +133,23 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			return;			
 		}
 		
-		String targetKeyStage = req.getParameter("TargetKeyStage");
+		String targetStage = req.getParameter("TargetStage");
 		String threeLevels = req.getParameter("ThreeLevelsTarget");
 		String fourLevels = req.getParameter("FourLevelsTarget");
 		String fiveLevels = req.getParameter("FiveLevelsTarget");
 
-		if (targetKeyStage != null)
+		if (targetStage != null)
 		{
-			int keyStage = -1;
+			int stage = -1;
 			try {
-				keyStage = Integer.parseInt(targetKeyStage);
+				stage = Integer.parseInt(targetStage);
 			} catch (Exception ex) {
-				log.warning("[PUT] Malformed key stage parameter passed to server (" + targetKeyStage + ")");
+				log.warning("[PUT] Malformed stage parameter passed to server (" + targetStage + ")");
 			}
 			
-			if (!target.setKeyStage(keyStage))
+			if (!target.setStage(stage))
 			{
-				log.warning("[PUT] Invalid key stage parameter passed to server (" + keyStage + ")");
+				log.warning("[PUT] Invalid stage parameter passed to server (" + stage + ")");
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;								
 			}
@@ -159,7 +159,8 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		{
 			if (!target.setTargetGrades(threeLevels, fourLevels, fiveLevels))
 			{
-				log.warning("[POST] Invalid target grades passed to the server (" + threeLevels + "," + fourLevels + "," + fiveLevels + ")");
+				log.warning("[PUT] Invalid target grades passed to the server (" + threeLevels + "," + fourLevels + "," + fiveLevels + ")");
+				log.warning(target.getStage() + " - " + target.isVocational());
 				resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;				
 			}

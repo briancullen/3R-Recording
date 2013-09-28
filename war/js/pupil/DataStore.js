@@ -140,23 +140,23 @@ var dataStore = new function () {
 		// Gets a list of the subjects that have targets associated with them. Does this
 		// by chaining off the getTargetsForSubjects method and just creating a
 		// callback to call the other callback.
-		this.getWithTargets = function (keyStage, callback, forceReload)
+		this.getWithTargets = function (stage, callback, forceReload)
 		{
 			callback = typeof callback !== 'undefined' ? callback : function(data) {};
-			dataStore.targets.get(keyStage, function() {
-				callback(subjectsWithTargets[keyStage]);
+			dataStore.targets.get(stage, function() {
+				callback(subjectsWithTargets[stage]);
 			}, forceReload);
 		};
 		
 		// WARNING: As implemented this method will only work if the information
 		// has already been fetched from the servers!
-		this.getWithoutTarget = function (keyStage)
+		this.getWithoutTarget = function (stage)
 		{
 			var result = {};
 			
 			for (var subjectKey in subjects)
 			{
-				if (!(subjectKey in subjectsWithTargets[keyStage]))
+				if (!(subjectKey in subjectsWithTargets[stage]))
 				{
 					result[subjectKey] = subjects[subjectKey];
 				}
@@ -169,31 +169,31 @@ var dataStore = new function () {
 		
 		// Downloads all the target information for the current pupil in a particular
 		// key stage. All create the subjects with targets list at the same time.
-		this.get = function (keyStage, callback, forceReload)
+		this.get = function (stage, callback, forceReload)
 		{
 			forceReload = typeof forceReload !== 'undefined' ? forceReload : false;
 			callback = typeof callback !== 'undefined' ? callback : function() { };
 	
-			if ((keyStage in targetsForSubjects) && (!forceReload))
+			if ((stage in targetsForSubjects) && (!forceReload))
 			{
-				callback(targetsForSubjects[keyStage]);
+				callback(targetsForSubjects[stage]);
 				return;
 			}
 			
-			var data = { KeyStage: keyStage }
+			var data = { Stage: stage }
 			loading("show");
 			$.get("/api/pupil/" + dataStore.pupil.key + "/target", data, function(jsonData) {
-				subjectsWithTargets[keyStage] = {};
-				targetsForSubjects[keyStage] = {};
+				subjectsWithTargets[stage] = {};
+				targetsForSubjects[stage] = {};
 				
 				for (var index in jsonData)
 				{
 					var target = jsonData[index];
-					subjectsWithTargets[keyStage][target.subject.key] = target.subject;
-					targetsForSubjects[keyStage][target.key] = target;
+					subjectsWithTargets[stage][target.subject.key] = target.subject;
+					targetsForSubjects[stage][target.key] = target;
 				}
 	
-				callback(targetsForSubjects[keyStage]);
+				callback(targetsForSubjects[stage]);
 				loading("hide");
 			}, "json").fail(function (jqXHR, textStatus, errorThrown) {
 				loading("hide");
@@ -202,14 +202,14 @@ var dataStore = new function () {
 			});
 		};
 		
-		this.remove = function (targetKey, keyStage, callback)
+		this.remove = function (targetKey, stage, callback)
 		{
 			loading("show");
 			$.ajax('/api/target/'+ targetKey,
 				{ type: "DELETE" }).done(function ()
 					{ 
-						delete subjectsWithTargets[keyStage][targetsForSubjects[keyStage][targetKey].subject.key];
-						delete targetsForSubjects[keyStage][targetKey];
+						delete subjectsWithTargets[stage][targetsForSubjects[stage][targetKey].subject.key];
+						delete targetsForSubjects[stage][targetKey];
 						callback(targetsForSubjects);
 						loading("hide");
 					})
@@ -220,12 +220,12 @@ var dataStore = new function () {
 				});
 		};
 		
-		this.update = function (targetKey, keyStage, targetData, callback)
+		this.update = function (targetKey, stage, targetData, callback)
 		{
 			loading("show");
 			$.ajax('/api/target/'+ targetKey, { type: "PUT", data: targetData })
 				.done(function () {
-					var target = targetsForSubjects[keyStage][targetKey];
+					var target = targetsForSubjects[stage][targetKey];
 					target.threeLevelsTargetGrade = targetData.ThreeLevelsTarget;
 					target.fourLevelsTargetGrade = targetData.FourLevelsTarget;
 					target.fiveLevelsTargetGrade = targetData.FiveLevelsTarget;
@@ -238,19 +238,19 @@ var dataStore = new function () {
 				});
 		};
 		
-		this.create = function (subjectKey, keyStage, callback) {
-			var grades = getGrades(keyStage, subjects[subjectKey].vocational);
+		this.create = function (subjectKey, stage, callback) {
+			var grades = getGrades(stage, subjects[subjectKey].vocational);
 			var newData = { TargetPupilKey: dataStore.pupil.key,
 			             TargetSubjectKey: subjectKey,
-			             TargetKeyStage: keyStage,
+			             TargetStage: stage,
 			             ThreeLevelsTarget: grades[0],
 			             FourLevelsTarget: grades[0],
 			             FiveLevelsTarget: grades[0] };
 			
 			loading("show");
 			$.post ('/api/target', newData,  function(newTarget) {
-					targetsForSubjects[keyStage][newTarget.key] = newTarget;
-					subjectsWithTargets[keyStage][newTarget.subject.key] = newTarget.subject;
+					targetsForSubjects[stage][newTarget.key] = newTarget;
+					subjectsWithTargets[stage][newTarget.subject.key] = newTarget.subject;
 					callback(newTarget);
 					 loading("hide");
 				}, "json").fail(function (jqXHR, textStatus, errorThrown) {

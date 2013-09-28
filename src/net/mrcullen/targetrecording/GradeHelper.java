@@ -10,47 +10,47 @@ public class GradeHelper {
 	public static final String[] KS4_TARGET_GRADES = { "U", "G", "F", "E", "D", "C", "B", "A", "A*" };
 	public static final String[] KS5_TARGET_GRADES = KS4_TARGET_GRADES;
 
-	public static final String[] KS4_VOC_TARGET_GRADES = {"PASS", "MERIT", "DISTINCTION", "DISTINCTION*" };
+	public static final String[] KS4_VOC_TARGET_GRADES = {"LEVEL1", "PASS", "MERIT", "DISTINCTION", "DISTINCTION*" };
 	public static final String[] KS5_VOC_TARGET_GRADES = {"PASS", "MERIT", "DISTINCTION", "DISTINCTION*" };
 	
-	public static int getKeyStage (int yearGroup)
+	public static int getStage (int yearGroup)
 	{
-		int keyStage = -1;
+		int stage = -1;
 		if (yearGroup == 7 || yearGroup == 8)
-			keyStage = 3;
+			stage = yearGroup;
 		else if (yearGroup > 8 && yearGroup < 12)
-			keyStage = 4;
+			stage = 4;
 		else if (yearGroup > 11 && yearGroup < 14)
-			keyStage = 5;
+			stage = 5;
 		
-		return keyStage;
+		return stage;
 	}
 	
 	public static boolean isValidGradeForYear (String grade, boolean vocational, int yearGroup)
 	{
-		return isValidGradeForKeyStage (grade, vocational, getKeyStage(yearGroup));
+		return isValidGradeForStage (grade, vocational, getStage(yearGroup));
 	}
 	
-	public static boolean isValidGradeForKeyStage (String grade, boolean vocational, int keyStage)
+	public static boolean isValidGradeForStage (String grade, boolean vocational, int stage)
 	{
 		String[] validGrades = null;
 		
-		if (keyStage == 3)
+		if (stage == 7 || stage == 8)
 			validGrades = KS3_TARGET_GRADES;
 		else
 		{
 			if (vocational)
 			{
-				if (keyStage == 4)
+				if (stage == 4)
 					validGrades = KS4_VOC_TARGET_GRADES;
-				else if (keyStage == 5)
+				else if (stage == 5)
 					validGrades = KS5_VOC_TARGET_GRADES;				
 			}
 			else
 			{
-				if (keyStage == 4)
+				if (stage == 4)
 					validGrades = KS4_TARGET_GRADES;
-				else if (keyStage == 5)
+				else if (stage == 5)
 					validGrades = KS5_TARGET_GRADES;
 			}
 		}

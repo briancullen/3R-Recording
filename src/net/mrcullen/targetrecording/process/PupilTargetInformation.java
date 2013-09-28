@@ -43,7 +43,7 @@ public class PupilTargetInformation {
 	public static List<PupilTargetEntity> findCurrentTargetInformationByPupil (PupilEntity ancestor, HashMap<String, Object> parameters)
 	{
 		Query<PupilTargetEntity> query = ofy().load().type(PupilTargetEntity.class)
-				.ancestor(Key.create(ancestor)).filter("keyStage", ancestor.getForm().get().getKeyStage());
+				.ancestor(Key.create(ancestor)).filter("targetStage", ancestor.getForm().get().getStage());
 		for (String key : parameters.keySet())
 		{
 			query = query.filter(key, parameters.get(key));

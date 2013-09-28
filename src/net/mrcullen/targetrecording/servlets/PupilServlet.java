@@ -173,17 +173,17 @@ public class PupilServlet extends AuthenticatedServletRequest {
 				{
 					HashMap<String,Object> targetParams = new HashMap<String,Object> ();
 					String subjectParam = req.getParameter("SubjectId");
-					String keyStageParam = req.getParameter("KeyStage");
+					String stageParam = req.getParameter("Stage");
 
 					try {
-						if (keyStageParam != null)
+						if (stageParam != null)
 						{
-							int keyStage = -1;
-							if (keyStageParam.equalsIgnoreCase("current"))
-								keyStage = pupil.getForm().get().getKeyStage();
-							else keyStage = Integer.parseInt(keyStageParam);
+							int stage = -1;
+							if (stageParam.equalsIgnoreCase("current"))
+								stage = pupil.getForm().get().getStage();
+							else stage = Integer.parseInt(stageParam);
 							
-							targetParams.put("keyStage", keyStage);
+							targetParams.put("targetStage", stage);
 						}
 						
 						if (subjectParam != null)
@@ -207,7 +207,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 					HashMap<String, Object> targetParams = new HashMap<String, Object> ();
 
 					String subjectParam = req.getParameter("SubjectId");
-					String keyStageParam = req.getParameter("KeyStage");
+					String stageParam = req.getParameter("Stage");
 					String yearParam = req.getParameter("Year");
 					String recordType = req.getParameter("Type");
 					
@@ -221,14 +221,14 @@ public class PupilServlet extends AuthenticatedServletRequest {
 							
 							progressParams.put("yearGroup", year);
 						}
-						else if (keyStageParam != null)
+						else if (stageParam != null)
 						{
-							int keyStage = -1;
-							if (keyStageParam.equalsIgnoreCase("current"))
-								keyStage = pupil.getForm().get().getKeyStage();
-							else keyStage = Integer.parseInt(keyStageParam);
+							int stage = -1;
+							if (stageParam.equalsIgnoreCase("current"))
+								stage = pupil.getForm().get().getStage();
+							else stage = Integer.parseInt(stageParam);
 							
-							targetParams.put("keyStage", keyStage);
+							targetParams.put("targetStage", stage);
 						}
 						
 						if (subjectParam != null)

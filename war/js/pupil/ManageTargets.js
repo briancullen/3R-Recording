@@ -1,5 +1,5 @@
 var targetsHandler = new function () {
-	var selectedKeyStage = null;
+	var selectedStage = null;
 	var selectedTarget = null;
 	
 	// Updates the main display when a subject is selected.
@@ -29,7 +29,7 @@ var targetsHandler = new function () {
 		$('#manageTargetForm select').prop("disabled", false);
 		
 		var target = targets[selectedTarget];
-		var grades = getGrades (selectedKeyStage, target.subject.vocational);
+		var grades = getGrades (selectedStage, target.subject.vocational);
 		
 		// Updates the select menus
 		$('#manageTargetForm select').empty();
@@ -48,15 +48,15 @@ var targetsHandler = new function () {
 	
 	// Initialises the look of the page and attaches the relevant event handlers.
 	this.initialise = function () {
-		selectedKeyStage = dataStore.pupil.keyStage;
-		$('#manageTargetsKeyStage input[value="' + selectedKeyStage + '"]').prop("checked", true);
-		$('#manageTargetsKeyStage input[type="radio"]').checkboxradio("refresh");
+		selectedStage = dataStore.pupil.stage;
+		$('#manageTargetsStage').val(selectedStage);
+		$('#manageTargetsStage').selectmenu("refresh");
 		
 		// Downloads the pupils current targets.
-		dataStore.targets.get(selectedKeyStage, targetsHandler.updateSubjectList, true);
+		dataStore.targets.get(selectedStage, targetsHandler.updateSubjectList, true);
 		
 		// Sets up click handler for when the KS buttons are pressed.	
-		$("#manageTargetsKeyStage input").click(targetsHandler.changeSelectedKeyStage);
+		$("#manageTargetsStage").change(targetsHandler.changeSelectedStage);
 		
 		// If any of the select boxes are changed then enable the update
 		// button so the change can be submitted.
@@ -74,7 +74,7 @@ var targetsHandler = new function () {
 	
 	this.updateSubjectList = function (data) {
 
-		if ($.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedKeyStage)))
+		if ($.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedStage)))
 		{
 				$('#manageTargetsAddBtn').addClass("ui-disabled");
 		}
@@ -93,7 +93,7 @@ var targetsHandler = new function () {
 		$('#manageTargetsSubjectList').listview("refresh");
 		selectedTarget = $('#manageTargetsSubjectList a').first().data("subjectkey")
 
-		dataStore.targets.get(selectedKeyStage, updateTargetsDisplay);
+		dataStore.targets.get(selectedStage, updateTargetsDisplay);
 	};
 	
 	// Updates which subject is selected at the side of the screen
@@ -107,22 +107,22 @@ var targetsHandler = new function () {
 			$('#manageTargetsSubjectList a').removeClass("ui-btn-active");
 			$(eventObj.currentTarget).addClass("ui-btn-active");
 			
-			dataStore.targets.get(selectedKeyStage, updateTargetsDisplay);
+			dataStore.targets.get(selectedStage, updateTargetsDisplay);
 		}
 	};
 	
-	this.changeSelectedKeyStage = function (eventObj)
+	this.changeSelectedStage = function (eventObj)
 	{
-		var keyStage = $(eventObj.currentTarget).val();
+		var stage = $(eventObj.currentTarget).val();
 		
-		if (keyStage != selectedKeyStage)
+		if (stage != selectedStage)
 		{
-			selectedKeyStage = keyStage;
-			dataStore.targets.get(keyStage, targetsHandler.updateSubjectList);
+			selectedStage = stage;
+			dataStore.targets.get(stage, targetsHandler.updateSubjectList);
 		
-			if (dataStore.pupil.keyStage != keyStage)
+			if (dataStore.pupil.stage != stage)
 				$('#manageTargetsAddBtn').addClass("ui-disabled");
-			else if (!$.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedKeyStage)))
+			else if (!$.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedStage)))
 			{
 				$('#manageTargetsAddBtn').removeClass("ui-disabled");
 			}
@@ -132,7 +132,7 @@ var targetsHandler = new function () {
 	this.createSubjectListForPopUp = function ()
 	{
 		$('#manageTargetsPopupSubjectList').empty();
-		var subjects = dataStore.subjects.getWithoutTarget(selectedKeyStage);
+		var subjects = dataStore.subjects.getWithoutTarget(selectedStage);
 				
 		for (var subjectKey in subjects)
 		{
@@ -146,7 +146,9 @@ var targetsHandler = new function () {
 	
 	this.removeSubjectTarget = function (eventObj)
 	{
-		dataStore.targets.remove(selectedTarget, selectedKeyStage, function (data) {
+		$('#manageTargetsRemove').addClass("ui-disabled");
+		$('#manageTargetsUpdate').addClass("ui-disabled");
+		dataStore.targets.remove(selectedTarget, selectedStage, function (data) {
 			$('#manageTargetsAddBtn').removeClass("ui-disabled");
 			$('#manageTargetsSubjectList a.ui-btn-active').parents('li').remove();
 
@@ -160,25 +162,28 @@ var targetsHandler = new function () {
 	};
 	
 	this.updateSubjectTarget = function (eventObj) {
+		$('#manageTargetsRemove').addClass("ui-disabled");
+		$('#manageTargetsUpdate').addClass("ui-disabled");
+
 		var data = {
 				ThreeLevelsTarget: $('#manageTarget3Levels').val(),
 				FourLevelsTarget: $('#manageTarget4Levels').val(),
 				FiveLevelsTarget: $('#manageTarget5Levels').val()
 		};
 
-		$('#manageTargetsUpdate').addClass("ui-disabled");
-		dataStore.targets.update(selectedTarget, selectedKeyStage, data, function(data) {
+		dataStore.targets.update(selectedTarget, selectedStage, data, function(data) {
 			$('#manageTargetBanner h3').text("Target details have been updated.");
 			$('#manageTargetBanner').fadeIn(2000);
+			$('#manageTargetsRemove').removeClass("ui-disabled");
 		});
 	};
 	
 	this.createSubjectTarget = function(eventObj) {
 		
 		dataStore.targets.create($(eventObj.currentTarget).data("subjectkey"),
-				selectedKeyStage, function (data) 
+				selectedStage, function (data) 
 				{
-					if ($.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedKeyStage)))
+					if ($.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedStage)))
 					{
 						$('#manageTargetsAddBtn').addClass("ui-disabled");
 					}
