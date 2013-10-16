@@ -71,9 +71,10 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		
 		String json = "[ ]";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.entityToJson(PupilInformation.getPupil(key));
 		else log.severe("[POST] No key returned on attempt to save target entity to database");
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -98,7 +99,11 @@ public class PupilServlet extends AuthenticatedServletRequest {
 
 		String newUserName = req.getParameter("UserName");
 		if (newUserName != null)
-			pupil.setName(newUserName);
+		{
+			if (newUserName.length() == 0)
+				pupil.setName(pupil.getEmail());
+			else pupil.setName(newUserName);
+		}
 		
 		String newUserFormKey = req.getParameter("UserFormKey");
 		if (newUserFormKey != null)
@@ -117,9 +122,10 @@ public class PupilServlet extends AuthenticatedServletRequest {
 		
 		String json = "[ ]";
 		if (key != null)
-			json = GsonService.keyToJson(key);
+			json = GsonService.entityToJson(PupilInformation.getPupil(key));
 		else log.severe("[PUT] No key returned on attempt to save target entity to database");
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);		
 	}
 
@@ -285,7 +291,8 @@ public class PupilServlet extends AuthenticatedServletRequest {
 				list = PupilInformation.getPupils();
 			}
 			json = GsonService.entityToJson(list);
-		}		
+		}
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 	

@@ -21,6 +21,13 @@ public class PupilInformation {
 		return ofy().load().type(PupilEntity.class).filter("form", key).list();
 	}
 	
+	public static List<PupilEntity> getPupilsByIntakeYear (int intakeYear)
+	{
+		
+		return ofy().load().type(PupilEntity.class).filter("form in", 
+				ofy().load().type(FormEntity.class).filter("intakeYear", intakeYear).keys()).list();
+	}
+	
 	public static void removePupilsByForm (Key<FormEntity> key)
 	{
 		List<PupilEntity> pupils = getPupilsByForm(key);

@@ -80,6 +80,7 @@ public class SubjectServlet extends AuthenticatedServletRequest {
 			json = GsonService.entityToJson(SubjectInformation.getSubject(key));
 		}
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 	
@@ -127,6 +128,7 @@ public class SubjectServlet extends AuthenticatedServletRequest {
 		if (key != null)
 			json = GsonService.entityToJson(SubjectInformation.getSubject(key));
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -166,6 +168,7 @@ public class SubjectServlet extends AuthenticatedServletRequest {
 			json = GsonService.entityToJson(subject);
 		}
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 	

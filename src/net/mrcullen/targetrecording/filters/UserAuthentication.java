@@ -53,6 +53,7 @@ public class UserAuthentication implements Filter {
 		{
 			req.setAttribute("UserEntity", pupil);
 			req.setAttribute("UserEntityKey", KeyFactory.keyToString(Key.create(pupil).getRaw()));
+			req.setAttribute("FormEntityKey", KeyFactory.keyToString(pupil.getForm().getKey().getRaw()));
 			req.setAttribute("UserAdmin", Boolean.FALSE);
 			req.setAttribute("TeacherType", Boolean.FALSE);	
 		}

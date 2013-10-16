@@ -21,14 +21,38 @@ var dataStore = new function () {
 	// from the server by year and type.
 	var progressToTargets = {};
 	
-	// Pupil Memebers means for outside use.
+	// Pupil Members meant for outside use.
 	// Stores the original information on the pupil
 	this.pupil = { };
+	
+	var formData = { };
 	
 	this.initialise = function () {
 		// Premptively loads and caches the list of available subjects
 		dataStore.subjects.get();
 	}
+	
+	this.updatePupil = function (newData, callback) {
+		callback = typeof callback !== 'undefined' ? callback : function() {};
+		
+		loading("show");
+		$.ajax('/api/pupil/'+ dataStore.pupil.key, {type: "PUT", data: newData, dataType: "json"}).done(function (data) {
+			
+			dataStore.pupil.displayName = data.displayName;
+			dataStore.pupil.form = data.form.formCode;
+			dataStore.pupil.formKey = data.form.key;
+			dataStore.pupil.year = convertIntakeToYear(data.form.intakeYear);
+			dataStore.pupil.stage = convertIntakeToStage(data.form.intakeYear);
+			
+			callback(data);
+			loading("hide");
+		}).fail (function(jqXHR, textStatus, errorThrown) {
+			loading("hide");
+			alert("Unable to save the record!");
+			logger.logAjax(logger.LOG_ERROR, '/api/pupil/'+ dataStore.pupil.key, "PUT",
+					newData, textStatus, errorThrown, jqXHR);
+		});
+	};
 		
 	this.progress = new function () {
 		this.get = function (year, type, callback, forceReload) {
@@ -57,7 +81,8 @@ var dataStore = new function () {
 					loading("hide");
 				}).fail(function (jqXHR, textStatus, errorThrown) {
 					loading("hide"); alert("Unable to load progress records from server");
-					console.error(textStatus + ": " + errorThrown);
+					logger.logAjax(logger.LOG_ERROR, '/api/pupil/' + dataStore.pupil.key + '/progress', "GET",
+							{Year: year, Type: type }, textStatus, errorThrown, jqXHR);
 				});
 		};
 		
@@ -71,7 +96,8 @@ var dataStore = new function () {
 				loading("hide");
 			}, "json").fail(function (jqXHR, textStatus, errorThrown)	{
 				loading("hide"); alert("Unable to save the record!");
-				console.error(textStatus + ": " + errorThrown);
+				logger.logAjax(logger.LOG_ERROR, '/api/progress', "POST",
+						newProgressData, textStatus, errorThrown, jqXHR);
 			});
 			
 		};
@@ -87,7 +113,8 @@ var dataStore = new function () {
 			}).fail (function(jqXHR, textStatus, errorThrown) {
 				loading("hide");
 				alert("Unable to save the record!");
-				console.error(textStatus + ": " + errorThrown);
+				logger.logAjax(logger.LOG_ERROR, '/api/progress/'+ progressKey, "PUT",
+						newProgressData, textStatus, errorThrown, jqXHR);
 			});
 		}
 		
@@ -102,7 +129,8 @@ var dataStore = new function () {
 			}).fail(function (jqXHR, textStatus, errorThrown) {
 				loading("hide");
 				alert("Unable to delete the record specified!");
-				console.error(textStatus + ": " + errorThrown);
+				logger.logAjax(logger.LOG_ERROR, '/api/progress/'+ progressKey, "DELETE",
+						"", textStatus, errorThrown, jqXHR);
 			});
 		};
 		
@@ -133,7 +161,8 @@ var dataStore = new function () {
 			}, "json").fail(function (jqXHR, textStatus, errorThrown) {
 				loading("hide");
 				alert("Unable to load subjects from server");
-				console.error(textStatus + ": " + errorThrown);
+				logger.logAjax(logger.LOG_ERROR, '/api/subject/', "GET",
+						"", textStatus, errorThrown, jqXHR);
 			});
 		};
 		
@@ -156,6 +185,14 @@ var dataStore = new function () {
 			
 			for (var subjectKey in subjects)
 			{
+				if ((subjectsWithTargets === undefined) ||
+						(stage === undefined) ||
+						(subjectsWithTargets[stage] === undefined))
+				{
+					logger.logUser(logger.LOG_ERROR, "Getting Subjects Without Targets (site of undefined error)",
+						{ STAGEKEY: stage, SUBJECTOBJ: subjectsWithTargets});
+				}
+				
 				if (!(subjectKey in subjectsWithTargets[stage]))
 				{
 					result[subjectKey] = subjects[subjectKey];
@@ -198,7 +235,8 @@ var dataStore = new function () {
 			}, "json").fail(function (jqXHR, textStatus, errorThrown) {
 				loading("hide");
 				alert("Unable to load targets from server");
-				console.error(textStatus + ": " + errorThrown);
+				logger.logAjax(logger.LOG_ERROR, "/api/pupil/" + dataStore.pupil.key + "/target", "GET",
+						"", textStatus, errorThrown, jqXHR);
 			});
 		};
 		
@@ -216,7 +254,8 @@ var dataStore = new function () {
 				.fail(function (jqXHR, textStatus, errorThrown) {
 					loading("hide");
 					alert("Unable to delete the record specified!");
-					console.error(textStatus + ": " + errorThrown);
+					logger.logAjax(logger.LOG_ERROR, '/api/target/'+ targetKey, "DELETE",
+							"", textStatus, errorThrown, jqXHR);
 				});
 		};
 		
@@ -234,7 +273,8 @@ var dataStore = new function () {
 				}).fail(function (jqXHR, textStatus, errorThrown) {
 					loading("hide");
 					alert("Unable to update the record specified!");
-					console.error(textStatus + ": " + errorThrown);
+					logger.logAjax(logger.LOG_ERROR, '/api/target/'+ targetKey, "PUT",
+							targetData, textStatus, errorThrown, jqXHR);
 				});
 		};
 		
@@ -256,8 +296,36 @@ var dataStore = new function () {
 				}, "json").fail(function (jqXHR, textStatus, errorThrown) {
 					loading("hide");
 					alert("Unable to save the record!");
-					console.error(textStatus + ": " + errorThrown);
+					logger.logAjax(logger.LOG_ERROR, '/api/target/', "POST",
+							newData, textStatus, errorThrown, jqXHR);
 				});
+		};
+	};
+	
+	this.forms = new function () {
+		this.get = function (callback, forceReload) {
+			forceReload = typeof forceReload !== 'undefined' ? forceReload : false;
+			callback = typeof callback !== 'undefined' ? callback : function() {};
+
+			if ((!$.isEmptyObject(formData)) && (!forceReload))
+			{
+				callback(formData);
+				return;
+			}
+			
+			loading("show");
+			$.getJSON("/api/form", function (data) {
+				for (var index in data)
+				{
+					formData[data[index].key] = data[index];
+				}
+				callback(formData);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				loading("hide");
+				alert("Unable to save the record!");
+				logger.logAjax(logger.LOG_ERROR, '/api/form/', "GET",
+						"", textStatus, errorThrown, jqXHR);
+			});
 		};
 	};
 			

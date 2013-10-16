@@ -99,6 +99,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 			json = GsonService.gson().toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
 		else log.severe("[POST] No key returned on attempt to save progress entity to database");
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -177,6 +178,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 			json = GsonService.gson().toJson(PupilRecordHelper.constructRecord(TargetProgressInformation.getTargetProgressEntity(key)));
 		else log.severe("[PUT] No key returned on attempt to update progress entity in database");
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -210,7 +212,7 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 			if (progress != null)
 				json = GsonService.entityToJson(progress);
 			else {
-				log.warning("[DELETE] Key passed to server does not reference an entity.");
+				log.warning("[GET] Key passed to server does not reference an entity.");
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			}
@@ -218,7 +220,8 @@ public class TargetProgressServlet extends AuthenticatedServletRequest {
 		else {
 			List<TargetProgressEntity> list = TargetProgressInformation.getAllTargetProgress();
 			json = GsonService.entityToJson(list);
-		}		
+		}
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 	

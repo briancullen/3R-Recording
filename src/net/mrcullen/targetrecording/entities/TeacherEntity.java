@@ -1,10 +1,12 @@
 package net.mrcullen.targetrecording.entities;
 
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Index;
 
 @Entity
+@Cache
 public class TeacherEntity extends PersonEntity {
 	private boolean admin;
 	@Index private String staffCode;

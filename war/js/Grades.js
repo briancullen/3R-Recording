@@ -36,3 +36,25 @@ function yearToStage (year)
 		return 4;
 	else return year;
 }
+
+function convertIntakeToYear (intakeYear)
+{
+	var date = new Date();
+	var yearGroup = date.getFullYear() - intakeYear + 7;
+	if (date.getMonth < 8)
+		yearGroup --;
+	
+	return yearGroup;
+}
+
+function convertIntakeToStage (intakeYear)
+{
+	var yearGroup = convertIntakeToYear (intakeYear);
+	if (yearGroup > 11 && yearGroup < 14)
+		return 5;
+	else if (yearGroup > 8 && yearGroup < 12)
+		return 4;
+	else if (yearGroup == 7 || yearGroup == 8)
+		return yearGroup;
+	else return -1;
+}

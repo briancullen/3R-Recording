@@ -1,10 +1,12 @@
 package net.mrcullen.targetrecording.entities;
 
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 
 @Entity
+@Cache
 public class SubjectEntity {
 	private @Id Long subjectId;
 	private String subjectName;

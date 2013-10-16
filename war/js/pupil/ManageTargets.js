@@ -48,13 +48,15 @@ var targetsHandler = new function () {
 	
 	// Initialises the look of the page and attaches the relevant event handlers.
 	this.initialise = function () {
-		selectedStage = dataStore.pupil.stage;
-		$('#manageTargetsStage').val(selectedStage);
-		$('#manageTargetsStage').selectmenu("refresh");
-		
-		// Downloads the pupils current targets.
-		dataStore.targets.get(selectedStage, targetsHandler.updateSubjectList, true);
-		
+		$('#manageTargetsPage').on("pagebeforeshow", function () {
+			selectedStage = dataStore.pupil.stage;
+			$('#manageTargetsStage').val(selectedStage);
+			$('#manageTargetsStage').selectmenu("refresh");
+			
+			// Downloads the pupils current targets.
+			dataStore.targets.get(selectedStage, targetsHandler.updateSubjectList, true);
+		});
+				
 		// Sets up click handler for when the KS buttons are pressed.	
 		$("#manageTargetsStage").change(targetsHandler.changeSelectedStage);
 		

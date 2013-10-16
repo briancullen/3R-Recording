@@ -80,7 +80,7 @@ var dataStore = new function () {
 				return;
 			}
 			
-			$.getJSON("/api/subject", function (data) {
+			$.getJSON("/api/form", function (data) {
 				for (var index in data)
 				{
 					formData[data[index].key] = data[index];

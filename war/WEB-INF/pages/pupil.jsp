@@ -13,10 +13,20 @@
 	<script src="/js/footable/footable.js" type="text/javascript"></script>
 	<script src="/js/footable/footable.sort.min.js" type="text/javascript"></script>
 	
+	<script type="text/javascript">
+		function loading(showOrHide) {
+		    setTimeout(function(){
+		        jQuery.mobile.loading(showOrHide);
+		    }, 1); 
+		}
+	</script>
+	
+	<script src="/js/logging/ClientLogging.js"></script>
 	<script src="/js/Grades.js"></script>
 	<script src="/js/pupil/DataStore.js"></script>
 	<script src="/js/pupil/ManageTargets.js"></script>
 	<script src="/js/pupil/ManageProgress.js"></script>
+	<script src="/js/pupil/ManageProfile.js"></script>
 	
 	
 	<link rel="stylesheet" href="/css/pupil.css" />
@@ -26,6 +36,7 @@
 	<div data-role="page" id="pupilRecordsPage">
 		<div data-role="header" data-position="fixed">
 			<h1>3R Target Records</h1>
+			<a href="#changePupilDetails" data-rel="dialog" class="ui-btn-left" data-icon="gear">Pupil Profile</a>
 			<a href="${LogoutURL}" data-ajax="false" class="ui-btn-right" data-icon="alert">Logout</a>
 			<div data-role="navbar" data-iconpos="left" >
 				<ul>
@@ -48,7 +59,7 @@
 		         <th data-hide="phone, tablet">3 Levels</th>
 		         <th data-hide="phone, tablet">4 Levels</th>
 		         <th data-hide="phone, tablet">5 Levels</th>
-		         <th>Current Level</th>
+		         <th>Expected Level</th>
 		         <th data-hide="phone" data-sort-ignore="true">Target</th>
 		         <th data-sort-ignore="true" data-hide="phone, tablet, desktop">Controls</th>
 		       </tr>
@@ -90,6 +101,45 @@
 		</div>
 	</div>
 	
+	<div data-role="page" id="changePupilDetails">
+		<div data-role="header">
+			<h1>Pupil Profile</h1>
+		</div>
+		<div data-role="content">
+			<form id="recordDialogForm">
+				<div data-role="fieldcontain">
+					<label for="pupilProfileEmail">email:</label>
+					<input type="text" value="${UserEmail}" readonly name="UserEmail" id="pupilProfileEmail" data-mini="true">
+					</select>
+				</div>
+				<div data-role="fieldcontain">
+					<label for="pupilProfileName">Name:</label>
+					<input type="text" placeholder="Real Name" name="UserName" id="pupilProfileName" data-mini="true">
+					</select>
+				</div>
+				<div data-role="fieldcontain">
+					<label for="pupilProfileYear">Year:</label>
+					<select name="pupilProfileYear" id="pupilProfileYear" data-mini="true">
+						<option value="7">7</option>
+						<option value="8">8</option>
+						<option value="9">9</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+						<option value="13">13</option>
+					</select>
+				</div>
+				<div data-role="fieldcontain">
+				    <label for="pupilProfileForm">Form:</label>
+					<select name="UserFormKey" id="pupilProfileForm" data-mini="true">
+					</select>
+				</div>
+				<a id="pupilProfileSubmit" data-rel="back" data-role="button" data-theme="b">Submit</a>
+			    <a data-rel="back" data-role="button">Cancel</a>
+			</form>
+		</div>
+	</div>
+	
 	<div data-role="page" id="progressRecordDialog">
 		<div data-role="header">
 			<h1>New Progress Record</h1>
@@ -103,7 +153,7 @@
 					</select>
 				</div>
 				<div data-role="fieldcontain">
-				    <label for="recordDialogCurrentLevel">Current Level:</label>
+				    <label for="recordDialogCurrentLevel">Expected Level:</label>
 					<select name="recordDialogCurrentLevel" id="recordDialogCurrentLevel" data-mini="true">
 					</select>
 				</div>
@@ -187,23 +237,18 @@
 	</div>
 	
 	<script type="text/javascript">
-	
 		dataStore.pupil = { displayName: "${UserEntity.name}",
 		                         email: "${UserEmail}",
 	                         	 form: "${UserEntity.form.value.formCode}",
 		                         year: "${UserEntity.form.value.yearGroup}",
 		                         stage: "${UserEntity.form.value.stage}",
+		                         formKey: "${FormEntityKey}",
 		                         key: "${UserEntityKey}" };
-		
-		function loading(showOrHide) {
-		    setTimeout(function(){
-		        jQuery.mobile.loading(showOrHide);
-		    }, 1); 
-		}
 		
 		dataStore.initialise();
 		$('#pupilRecordsPage').on("pageinit", progressHandler.initialise);
 		$('#manageTargetsPage').on("pageinit", targetsHandler.initialise);
+		$('#changePupilDetails').on('pageinit', profileHandler.initialise);
 	</script>	
 </body>
 </html>

@@ -110,6 +110,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			json = GsonService.entityToJson(newTarget);
 		else log.severe("[POST] No key returned on attempt to save target entity to database");
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -173,6 +174,7 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 			json = GsonService.entityToJson(target);
 		else log.severe("[PUT] No key returned on attempt to save target entity to database");
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);		
 	}
 
@@ -214,7 +216,8 @@ public class PupilTargetServlet extends AuthenticatedServletRequest {
 		else {
 			List<PupilTargetEntity> list = PupilTargetInformation.getAllPupilTargets();
 			json = GsonService.entityToJson(list);
-		}		
+		}
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 	

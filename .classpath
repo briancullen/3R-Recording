@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry excluding="net/mrcullen/targetrecording/servlets/old/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Program Files/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.8.4/appengine-java-sdk-1.8.4/lib/tools/jsp/repackaged-appengine-jakarta-jstl-1.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/tools/jsp/repackaged-appengine-jakarta-jstl-1.1.2.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/eclipse/plugins/com.google.appengine.eclipse.sdkbundle_1.8.4/appengine-java-sdk-1.8.4/lib/tools/jsp/repackaged-appengine-jakarta-standard-1.1.2.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Development/google-gson-2.2.4/gson-2.2.4.jar" sourcepath="C:/Development/google-gson-2.2.4/gson-2.2.4-sources.jar">
@@ -16,5 +16,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Development/Objectify/guava-14.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Development/javacsv2.1/javacsv.jar" sourcepath="C:/Development/javacsv2.1/src">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Development/javacsv2.1/doc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

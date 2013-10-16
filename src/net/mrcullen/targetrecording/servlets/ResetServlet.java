@@ -48,7 +48,8 @@ public class ResetServlet extends HttpServlet {
 		put("RE",Integer.valueOf(2012));
 		put("TN",Integer.valueOf(2011));
 		put("DB",Integer.valueOf(2011));
-		put("CS",Integer.valueOf(2011));
+		put("WD",Integer.valueOf(2011));
+		put("CA",Integer.valueOf(2011));
 		put("ES",Integer.valueOf(2011));
 		put("PK",Integer.valueOf(2011));
 		put("RB",Integer.valueOf(2011));
@@ -109,6 +110,17 @@ public class ResetServlet extends HttpServlet {
 		put("Res Materials",false);
 		put("Textiles",false);
 		put("Techonolgy",false);
+		
+		put("ICT Nationals", true);
+		put("ICT Technicals", true);
+		put("Hairdressing", true);
+		put("Health & Social Care", true);
+		put("BTEC Business", true);
+		put("Vocational Studies", true);
+		put("Performing Arts", true);
+		put("BTEC Sports", true);
+		
+		
 	}};
 
 
@@ -137,9 +149,9 @@ public class ResetServlet extends HttpServlet {
 				&& (SubjectInformation.getSubjects().size() == 0)
 				&& (PupilInformation.getPupils().size() == 0))
 		{
-			/* TeacherEntity teacher = new TeacherEntity ("bcullen@rossettlearning.co.uk", "Mr B Cullen", "cl", true);
+			TeacherEntity teacher = new TeacherEntity ("bcullen@rossettlearning.co.uk", "Mr B Cullen", "cl", true);
 			Key<TeacherEntity> key = TeacherInformation.saveTeacher(teacher);
-			resp.getWriter().print(GsonService.keyToJson(key)); */
+			resp.getWriter().print(GsonService.keyToJson(key));
 			
 			for (String formCode : forms.keySet())
 			{

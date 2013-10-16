@@ -28,4 +28,7 @@
     http://code.google.com/appengine/docs/java/config/appconfig.html#Enabling_Sessions
   -->
 
+	<admin-console>
+	  <page name="Appstats" url="/appstats" />
+	</admin-console>
 </appengine-web-app>

@@ -1,5 +1,9 @@
 package net.mrcullen.targetrecording;
 
+import net.mrcullen.logging.entities.AjaxLogEntity;
+import net.mrcullen.logging.entities.EventLogEntity;
+import net.mrcullen.logging.entities.UserLogEntity;
+import net.mrcullen.logging.entities.WindowLogEntity;
 import net.mrcullen.targetrecording.entities.FormEntity;
 import net.mrcullen.targetrecording.entities.PersonEntity;
 import net.mrcullen.targetrecording.entities.PupilEntity;
@@ -21,6 +25,10 @@ public class OfyService {
     	ObjectifyService.register(TargetProgressEntity.class);
     	ObjectifyService.register(PupilTargetEntity.class);
     	ObjectifyService.register(FormEntity.class);
+    	ObjectifyService.register(AjaxLogEntity.class);
+    	ObjectifyService.register(EventLogEntity.class);
+    	ObjectifyService.register(UserLogEntity.class);
+    	ObjectifyService.register(WindowLogEntity.class);
     }
 
     public static Objectify ofy() {

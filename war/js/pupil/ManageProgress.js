@@ -32,23 +32,6 @@ var progressHandler = new function () {
 					+ '" data-icon="delete">Delete</a></div></td></tr>');
 		
 		footable.appendRow(jQueryRow);
-		
-		$(jQueryRow).on("click", 'a[data-icon="delete"]', function (eventObj) {
-			$(eventObj.currentTarget).addClass("ui-disabled");
-			$(eventObj.currentTarget).siblings().addClass("ui-disabled");
-			var recordKey = $(eventObj.currentTarget).data('recordkey');
-			dataStore.progress.remove(recordKey, selectedYear, selectedType, function () {
-				var footable = $('#pupilRecordTable').data("footable");
-				var tableRow = $(eventObj.currentTarget).closest("tr");
-				footable.removeRow(tableRow);				
-			});
-		});
-		
-		$(jQueryRow).on("click", 'a[data-icon="gear"]', function (eventObj) {
-			$(eventObj.currentTarget).addClass("ui-disabled");
-			$(eventObj.currentTarget).siblings().addClass("ui-disabled");
-			$('#recordDialogForm').data('recordkey', $(eventObj.currentTarget).data('recordkey'));
-		});
 	}
 	
 	// Change the year saved when a new year is clicked in
@@ -70,6 +53,21 @@ var progressHandler = new function () {
 		}
 	};
 	
+	this.initialiseForYear = function () {
+		
+		selectedYear = dataStore.pupil.year;
+		$('#pupilRecordsYearPopup ul li').removeClass("ui-screen-hidden");
+	
+		// Hides all the year options that should be in the future for
+		// this pupil ... hope it doesn't cause trouble.
+		$('#pupilRecordsYearPopup ul a').each(function(index)
+		{
+			if ($(this).data("year") > dataStore.pupil.year)
+				$(this).parents('li').addClass("ui-screen-hidden");
+		});
+		$('#pupilRecordsYearPopup ul').listview("refresh");
+	};
+	
 	this.initialise = function () {
 
 		$('#pupilRecordTable').footable({
@@ -84,9 +82,25 @@ var progressHandler = new function () {
 		
 		$('#pupilRecordsPage').on('pageshow', $('#pupilRecordTable').data("footable").resize);
 		
+		$('#pupilRecordTable').on("click", 'a[data-icon="delete"]', function (eventObj) {
+			$(eventObj.currentTarget).addClass("ui-disabled");
+			$(eventObj.currentTarget).siblings().addClass("ui-disabled");
+			var recordKey = $(eventObj.currentTarget).data('recordkey');
+			dataStore.progress.remove(recordKey, selectedYear, selectedType, function () {
+				var footable = $('#pupilRecordTable').data("footable");
+				var tableRow = $(eventObj.currentTarget).closest("tr");
+				footable.removeRow(tableRow);				
+			});
+		});
+		
+		$('#pupilRecordTable').on("click", 'a[data-icon="gear"]', function (eventObj) {
+			$(eventObj.currentTarget).addClass("ui-disabled");
+			$(eventObj.currentTarget).siblings().addClass("ui-disabled");
+			$('#recordDialogForm').data('recordkey', $(eventObj.currentTarget).data('recordkey'));
+		});
+		
 		// Save the year and type to the datatable for later use and triggers and
 		// update of the records shown in the table.
-		selectedYear = dataStore.pupil.year;
 		selectedType = $('#pupilRecordsPageFooter a.ui-btn-active').data("recordtype");
 		
 		// Handler for clicking buttons in footer.
@@ -99,16 +113,8 @@ var progressHandler = new function () {
 			$('#pupilRecordsYearPopup ul a[data-year="' + selectedYear + '"]').addClass('ui-disabled');
 		});
 		
-		// Hides all the year options that should be in the future for
-		// this pupil ... hope it doesn't cause trouble.
-		$('#pupilRecordsYearPopup ul a').each(function(index)
-				{
-					if ($(this).data("year") > dataStore.pupil.year)
-						$(this).parents('li').addClass("ui-screen-hidden");
-					else $(this).parent('li').removeClass("ui-screen-hidden");
-				});
-		$('#pupilRecordsYearPopup ul').listview("refresh");
-		
+		progressHandler.initialiseForYear();
+				
 		// Resets the buttons in the footer so the appropriate R is
 		// shown after we retrun to the page from somewhere else (e.g. dialog).
 		$('#pupilRecordsPage').on('pagebeforeshow', function () {
@@ -134,7 +140,13 @@ var progressHandler = new function () {
 		});
 		
 		$('#progressRecordDialog').on('pagebeforeshow', progressHandler.initialiseProgressDialog);
-		$('#progressRecordDialog').on('pagehide', function () { $('#recordDialogForm').removeData("recordkey"); });
+		$('#progressRecordDialog').on('pagehide', function () {
+			var dataKey = $('#recordDialogForm').data("recordkey");
+			$('#recordDialogForm').removeData("recordkey");
+			
+			$('#pupilRecordTable tr a[data-recordkey="' + dataKey + '"]').removeClass("ui-disabled");
+			
+		});
 	};
 	
 	this.initialiseProgressDialog = function (eventObj) {
@@ -204,11 +216,13 @@ var progressHandler = new function () {
 				var tableRow = $('#pupilRecordTable a[data-recordkey="' + data.progress.key + '"]').closest("tr");
 				footable.removeRow(tableRow);
 				addRowToFootable(data);
+				$('#manageProgressNotFoundBanner').hide();
 			});
 		}
 		else {
 			dataStore.progress.create(record, function (data) {
 				addRowToFootable(data);
+				$('#manageProgressNotFoundBanner').hide();
 			});
 		}
 	}

@@ -44,9 +44,13 @@ public class PupilTargetInformation {
 	{
 		Query<PupilTargetEntity> query = ofy().load().type(PupilTargetEntity.class)
 				.ancestor(Key.create(ancestor)).filter("targetStage", ancestor.getForm().get().getStage());
-		for (String key : parameters.keySet())
+		
+		if (parameters != null)
 		{
-			query = query.filter(key, parameters.get(key));
+			for (String key : parameters.keySet())
+			{
+				query = query.filter(key, parameters.get(key));
+			}
 		}
 		
 		return query.list();

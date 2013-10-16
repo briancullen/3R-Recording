@@ -51,6 +51,7 @@ public class TeacherServlet extends AuthenticatedServletRequest {
 		if (key != null)
 			json = GsonService.keyToJson(key);
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -89,6 +90,7 @@ public class TeacherServlet extends AuthenticatedServletRequest {
 		if (key != null)
 			json = GsonService.keyToJson(key);
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);		
 	}
 
@@ -146,7 +148,8 @@ public class TeacherServlet extends AuthenticatedServletRequest {
 				List<TeacherEntity> list = TeacherInformation.getTeachers();
 				json = GsonService.entityToJson(list);
 			}
-		}		
+		}
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 

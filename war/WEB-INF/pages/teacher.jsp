@@ -30,7 +30,22 @@
 			</div>
 		</div>
 		<div data-role="content">
-			${UserEntity.name}
+			<select if="typeSelect">
+				<option value="Responsibility">Responsibility</option>
+				<option value="Resilience">Resilience</option>
+				<option value="Reflection">Reflection</option>
+			</select>
+			<select id="yearSelect">
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+			</select>
+			<select id="formSelect">
+			</select>
+			<a data-rel="button">Export</a>
 		</div>
 	</div>
 	

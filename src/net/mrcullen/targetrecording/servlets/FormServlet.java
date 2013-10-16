@@ -80,7 +80,7 @@ public class FormServlet extends AuthenticatedServletRequest {
 			
 			json = GsonService.entityToJson(FormInformation.getForm(key));
 		}
-		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 	
@@ -96,7 +96,6 @@ public class FormServlet extends AuthenticatedServletRequest {
 		
 		FormEntity form = new FormEntity (formCode, intakeYear);
 		return FormInformation.saveForm(form);
-		
 	}
 
 	public void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
@@ -139,6 +138,7 @@ public class FormServlet extends AuthenticatedServletRequest {
 		if (key != null)
 			json = GsonService.entityToJson(FormInformation.getForm(key));
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 
@@ -204,6 +204,7 @@ public class FormServlet extends AuthenticatedServletRequest {
 			json = GsonService.entityToJson(form);
 		}
 		
+		resp.setContentType("application/json");
 		resp.getWriter().print(json);
 	}
 

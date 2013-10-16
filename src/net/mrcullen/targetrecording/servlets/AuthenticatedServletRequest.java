@@ -62,17 +62,29 @@ public abstract class AuthenticatedServletRequest extends HttpServlet {
 		else resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 	
-	public abstract void doAuthenticatedPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException, ServletException;
+	public void doAuthenticatedPost(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException, ServletException
+	{
+		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+	}
 
-	public abstract void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException, ServletException;
+	public void doAuthenticatedPut(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException, ServletException
+	{
+		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+	}
 
-	public abstract void doAuthenticatedDelete(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException, ServletException;
+	public void doAuthenticatedDelete(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException, ServletException
+	{
+		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+	}
 
-	public abstract void doAuthenticatedGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException, ServletException;
+	public void doAuthenticatedGet(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException, ServletException
+	{
+		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+	}
 
 	public abstract Set<String> getRequiredPermission (String method);
 
