@@ -23,6 +23,7 @@ var profileHandler = new function () {
 			UserFormKey: $('#pupilProfileForm').val()}, function () {
 				progressHandler.initialiseForYear();
 			});
+
 	}
 	
 	this.initialise = function () {

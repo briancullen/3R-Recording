@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
@@ -16,8 +16,8 @@
 	<script type="text/javascript">
 		function loading(showOrHide) {
 		    setTimeout(function(){
-		        jQuery.mobile.loading(showOrHide);
-		    }, 1); 
+		        $.mobile.loading(showOrHide);
+		    }, 20); 
 		}
 	</script>
 	
@@ -90,7 +90,7 @@
 			    </div>
 			</div>			
 		</div>
-		<div id="pupilRecordsPageFooter"data-role="footer" data-position="fixed">
+		<div id="pupilRecordsPageFooter" data-role="footer" data-position="fixed">
 			<div data-role="navbar">
 		        <ul>
 		        	<li><a data-recordtype="Responsibility" class="ui-btn-active">Responsibility</a></li>
@@ -110,12 +110,10 @@
 				<div data-role="fieldcontain">
 					<label for="pupilProfileEmail">email:</label>
 					<input type="text" value="${UserEmail}" readonly name="UserEmail" id="pupilProfileEmail" data-mini="true">
-					</select>
 				</div>
 				<div data-role="fieldcontain">
 					<label for="pupilProfileName">Name:</label>
 					<input type="text" placeholder="Real Name" name="UserName" id="pupilProfileName" data-mini="true">
-					</select>
 				</div>
 				<div data-role="fieldcontain">
 					<label for="pupilProfileYear">Year:</label>
@@ -159,7 +157,7 @@
 				</div>
 				<div data-role="fieldcontain">
 				    <label for="recordDialogTarget">Next Steps:</label>
-				    <textarea cols="40" rows="8" name="recordDialogTarget" placeholder="How can you improve to meet you targets?" id="recordDialogTarget"></textarea>
+				    <textarea cols="40" rows="8" name="recordDialogTarget" placeholder="How can you improve to meet your targets?" id="recordDialogTarget"></textarea>
 				</div>
 				<a id="recordDialogSubmit" data-rel="back" data-role="button" data-theme="b">Submit</a>
 			    <a data-rel="back" data-role="button">Cancel</a>

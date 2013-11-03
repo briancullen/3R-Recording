@@ -110,7 +110,9 @@ public class ResetServlet extends HttpServlet {
 		put("Res Materials",false);
 		put("Textiles",false);
 		put("Techonolgy",false);
+		put("Music Technology", false);
 		
+		put("BTEC Media", true);
 		put("ICT Nationals", true);
 		put("ICT Technicals", true);
 		put("Hairdressing", true);

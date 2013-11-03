@@ -39,7 +39,6 @@ public class ExportServlet extends AuthenticatedServletRequest {
 	public void doAuthenticatedGet (HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException
 	{
-		String json = "[ ]";
 		if (!UrlPathHelper.isPathEmpty(req.getPathInfo()))
 		{
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -79,6 +78,7 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		CsvWriter writer = new CsvWriter (resp.getWriter(), ',');
 		writer.write("Pupil Email");
 		writer.write("Pupil Name");
+		writer.write("Year Group");
 		writer.write("Subject");
 		writer.write("3 Levels");
 		writer.write("4 Levels");
@@ -89,22 +89,35 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		
 		List<PupilEntity> pupils = null;
 		
-		if (year == -1)
+		if (year != -1)
+		{
+			pupils = PupilInformation.getPupilsByIntakeYear(year);
+		}
+		else if (formId != null)
+		{
 			pupils = PupilInformation.getPupilsByForm(formId);
-		else pupils = PupilInformation.getPupilsByIntakeYear(year);
+		}
+		else {
+			pupils = PupilInformation.getPupils();
+		}
 		
 		for (PupilEntity pupil : pupils)
 		{
+			int currentYearGroup = pupil.getForm().get().getYearGroup();
 			List<PupilTargetEntity> targets = PupilTargetInformation.findCurrentTargetInformationByPupil(pupil, null);
 			for (PupilTargetEntity target : targets)
 			{
+				HashMap<String, Object> finalParmeters = (HashMap<String, Object>)parameter.clone();
+				finalParmeters.put("yearGroup", currentYearGroup);
+				
 				List<TargetProgressEntity> progresses = TargetProgressInformation.findProgressInformationByAncestor
-						(Key.create(target), parameter);
+						(Key.create(target), finalParmeters);
 				
 				for (TargetProgressEntity progress : progresses)
 				{
 					writer.write(pupil.getEmail());
 					writer.write(pupil.getName());
+					writer.write(Integer.toString(progress.getYearGroup()));
 					writer.write(target.getSubject().getName());
 					writer.write(target.getThreeLevelsTargetGrade());
 					writer.write(target.getFourLevelsTargetGrade());

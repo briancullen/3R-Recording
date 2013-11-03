@@ -192,11 +192,11 @@ var dataStore = new function () {
 					logger.logUser(logger.LOG_ERROR, "Getting Subjects Without Targets (site of undefined error)",
 						{ STAGEKEY: stage, SUBJECTOBJ: subjectsWithTargets});
 				}
-				
-				if (!(subjectKey in subjectsWithTargets[stage]))
+				else if (!(subjectKey in subjectsWithTargets[stage]))
 				{
 					result[subjectKey] = subjects[subjectKey];
 				}
+
 			}
 			return result;
 		};
@@ -289,7 +289,14 @@ var dataStore = new function () {
 			
 			loading("show");
 			$.post ('/api/target', newData,  function(newTarget) {
+					if (targetsForSubjects[stage] === undefined)
+						targetsForSubjects[stage] = {};
+					
 					targetsForSubjects[stage][newTarget.key] = newTarget;
+					
+					if (subjectsWithTargets[stage] === undefined)
+						subjectsWithTargets[stage] = {};
+					
 					subjectsWithTargets[stage][newTarget.subject.key] = newTarget.subject;
 					callback(newTarget);
 					 loading("hide");
@@ -319,6 +326,7 @@ var dataStore = new function () {
 				{
 					formData[data[index].key] = data[index];
 				}
+				loading("hide");
 				callback(formData);
 			}).fail(function (jqXHR, textStatus, errorThrown) {
 				loading("hide");

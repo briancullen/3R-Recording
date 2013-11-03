@@ -118,7 +118,7 @@ public class PupilServlet extends AuthenticatedServletRequest {
 			pupil.setForm(Ref.create(formKey));
 		}
 
-				Key<PupilEntity> key = PupilInformation.savePupil(pupil);
+		Key<PupilEntity> key = PupilInformation.savePupil(pupil);
 		
 		String json = "[ ]";
 		if (key != null)

@@ -48,13 +48,17 @@ var targetsHandler = new function () {
 	
 	// Initialises the look of the page and attaches the relevant event handlers.
 	this.initialise = function () {
+		$('#manageTargetAddSubjectPopup').addClass("ui-disabled");
 		$('#manageTargetsPage').on("pagebeforeshow", function () {
 			selectedStage = dataStore.pupil.stage;
 			$('#manageTargetsStage').val(selectedStage);
 			$('#manageTargetsStage').selectmenu("refresh");
 			
 			// Downloads the pupils current targets.
-			dataStore.targets.get(selectedStage, targetsHandler.updateSubjectList, true);
+			dataStore.targets.get(selectedStage, function (data) {
+					targetsHandler.updateSubjectList(data);
+					$('#manageTargetAddSubjectPopup').removeClass("ui-disabled");
+				}, true);
 		});
 				
 		// Sets up click handler for when the KS buttons are pressed.	
@@ -120,14 +124,16 @@ var targetsHandler = new function () {
 		if (stage != selectedStage)
 		{
 			selectedStage = stage;
-			dataStore.targets.get(stage, targetsHandler.updateSubjectList);
-		
-			if (dataStore.pupil.stage != stage)
-				$('#manageTargetsAddBtn').addClass("ui-disabled");
-			else if (!$.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedStage)))
-			{
-				$('#manageTargetsAddBtn').removeClass("ui-disabled");
-			}
+			$('#manageTargetsAddBtn').addClass("ui-disabled");
+			dataStore.targets.get(stage, function (data) {
+				targetsHandler.updateSubjectList(data);
+				if ((dataStore.pupil.stage == stage) &&
+					(!$.isEmptyObject(dataStore.subjects.getWithoutTarget(selectedStage))))
+				{
+					$('#manageTargetsAddBtn').removeClass("ui-disabled");
+				}
+
+			});		
 		}
 	};
 	
