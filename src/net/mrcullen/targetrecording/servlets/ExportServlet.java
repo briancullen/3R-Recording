@@ -47,8 +47,7 @@ public class ExportServlet extends AuthenticatedServletRequest {
 
 		String formParam = req.getParameter("Form");
 		String typeParam = req.getParameter("Type");
-		String yearParam = req.getParameter("Year");
-		
+		String yearParam = req.getParameter("Year");		
 		
 		int year = -1;
 		try {
@@ -57,19 +56,20 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		}
 		catch (Exception ex)
 		{
+			log.warning("[GET] Invalid year parameter passed (" + yearParam + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;			
 		}
 		
 		Key<FormEntity> formId = UrlPathHelper.getKeyFromPath(formParam, FormEntity.class.getSimpleName());
-		if ((formId == null && year == -1) || (typeParam == null))
+		HashMap<String, Object> parameter = new HashMap<String, Object>();
+		
+		if (typeParam == null)
 		{
+			log.warning("[GET] Invalid form parameter passed (" + formParam + ")");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		
-		
-		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		parameter.put("recordType", typeParam);
 		
 		resp.setContentType("text/csv");
@@ -93,12 +93,16 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		{
 			pupils = PupilInformation.getPupilsByIntakeYear(year);
 		}
-		else if (formId != null)
+		else
 		{
-			pupils = PupilInformation.getPupilsByForm(formId);
-		}
-		else {
-			pupils = PupilInformation.getPupils();
+			if (formId != null)
+			{
+				pupils = PupilInformation.getPupilsByForm(formId);
+			}
+			else
+			{
+				pupils = PupilInformation.getPupils();
+			}
 		}
 		
 		for (PupilEntity pupil : pupils)
