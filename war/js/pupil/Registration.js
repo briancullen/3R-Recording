@@ -35,9 +35,10 @@ function initialise (formInformation)
 	$('#studentRegistrationFormSubmit').click(saveTargetRecord);
 	for (var index in formInformation)
 	{
+		var test = false;
 		var date = new Date();
 		var yearGroup = date.getFullYear() - formInformation[index].intakeYear + 7;
-		if (date.getMonth < 8)
+		if (date.getMonth() < 8)
 			yearGroup --;
 		
 		formsByYear[yearGroup].push( { formKey: formInformation[index].key, formCode: formInformation[index].formCode });
