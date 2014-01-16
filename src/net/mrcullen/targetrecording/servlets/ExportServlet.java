@@ -1,35 +1,40 @@
 package net.mrcullen.targetrecording.servlets;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.csvreader.CsvWriter;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Ref;
 
-import net.mrcullen.targetrecording.GradeHelper;
-import net.mrcullen.targetrecording.GsonService;
-import net.mrcullen.targetrecording.PupilRecordHelper;
 import net.mrcullen.targetrecording.UrlPathHelper;
 import net.mrcullen.targetrecording.entities.FormEntity;
 import net.mrcullen.targetrecording.entities.PupilEntity;
 import net.mrcullen.targetrecording.entities.PupilTargetEntity;
-import net.mrcullen.targetrecording.entities.SubjectEntity;
 import net.mrcullen.targetrecording.entities.TargetProgressEntity;
-import net.mrcullen.targetrecording.entities.TeacherEntity;
-import net.mrcullen.targetrecording.process.FormInformation;
+
 import net.mrcullen.targetrecording.process.PupilInformation;
 import net.mrcullen.targetrecording.process.PupilTargetInformation;
 import net.mrcullen.targetrecording.process.TargetProgressInformation;
+
+import javax.activation.DataHandler;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 @SuppressWarnings("serial")
 public class ExportServlet extends AuthenticatedServletRequest {
@@ -72,10 +77,13 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		}
 		parameter.put("recordType", typeParam);
 		
-		resp.setContentType("text/csv");
-		resp.setHeader("Content-Disposition", "attachment; filename=progressexport.csv");
+		// resp.setContentType("text/csv");
+		// resp.setHeader("Content-Disposition", "attachment; filename=progressexport.csv");
+		resp.getWriter().write("Processing your request...");
 		
-		CsvWriter writer = new CsvWriter (resp.getWriter(), ',');
+		StringWriter data = new StringWriter();
+		
+		CsvWriter writer = new CsvWriter (data, ',');
 		writer.write("Pupil Email");
 		writer.write("Pupil Name");
 		writer.write("Year Group");
@@ -133,6 +141,32 @@ public class ExportServlet extends AuthenticatedServletRequest {
 			}
 		}
 		writer.close();
+		
+		Session session = Session.getDefaultInstance(new Properties(), null);
+		try {
+            Message msg = new MimeMessage(session);
+            msg.setFrom(new InternetAddress("bcullen@rossettlearning.co.uk", "3Rs Admin"));
+            msg.addRecipient(Message.RecipientType.TO,
+                             new InternetAddress("bcullen@rossettschool.co.uk", "Mr. Cullen"));
+            msg.setSubject("Export of 3Rs Data");
+            
+            Multipart mp = new MimeMultipart();
+
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setContent("Please find the requested data attached.", "text/plain");
+            mp.addBodyPart(textPart);
+
+            MimeBodyPart attachment = new MimeBodyPart();
+            attachment.setFileName("export.csv");
+            attachment.setContent(data.toString(), "text/comma-separated-values");
+            mp.addBodyPart(attachment);
+
+            msg.setContent(mp);
+            Transport.send(msg);
+
+        } catch (Exception ex) {
+            // ...
+        }
 	}
 	
 	@Override
@@ -140,7 +174,7 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		TreeSet<String> permissions = new TreeSet<String>();
 		permissions.add(ADMIN_PERMISSION);
 		permissions.add(TEACHER_PERMISSION);
-			
+		permissions.add(ALL_PERMISSION);	
 		return permissions;
 	}
 }
