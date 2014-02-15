@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.csvreader.CsvWriter;
+import com.google.appengine.api.ThreadManager;
 import com.googlecode.objectify.Key;
 
 import net.mrcullen.targetrecording.UrlPathHelper;
@@ -67,7 +68,6 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		}
 		
 		Key<FormEntity> formId = UrlPathHelper.getKeyFromPath(formParam, FormEntity.class.getSimpleName());
-		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		
 		if (typeParam == null)
 		{
@@ -75,98 +75,125 @@ public class ExportServlet extends AuthenticatedServletRequest {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		parameter.put("recordType", typeParam);
+		
 		
 		// resp.setContentType("text/csv");
 		// resp.setHeader("Content-Disposition", "attachment; filename=progressexport.csv");
-		resp.getWriter().write("Processing your request...");
+		resp.getWriter().write("Processing your request. Please check your email in a few minutes.");
 		
-		StringWriter data = new StringWriter();
+		Thread thread = ThreadManager.createBackgroundThread(new ExportClass(year, formId, typeParam));
+		thread.start();
+	}
+	
+	private static class ExportClass implements Runnable {
 		
-		CsvWriter writer = new CsvWriter (data, ',');
-		writer.write("Pupil Email");
-		writer.write("Pupil Name");
-		writer.write("Year Group");
-		writer.write("Subject");
-		writer.write("3 Levels");
-		writer.write("4 Levels");
-		writer.write("5 Levels");
-		writer.write("Current Level");
-		writer.write("Target");
-		writer.endRecord();
+		protected int year;
+		protected Key<FormEntity> formId;
+		protected String typeParam;
 		
-		List<PupilEntity> pupils = null;
-		
-		if (year != -1)
+		public ExportClass (int year, Key<FormEntity> formId, String typeParam)
 		{
-			pupils = PupilInformation.getPupilsByIntakeYear(year);
-		}
-		else
-		{
-			if (formId != null)
-			{
-				pupils = PupilInformation.getPupilsByForm(formId);
-			}
-			else
-			{
-				pupils = PupilInformation.getPupils();
-			}
+			this.year = year;
+			this.formId = formId;
+			this.typeParam = typeParam;
 		}
 		
-		for (PupilEntity pupil : pupils)
+		public void run ()
 		{
-			int currentYearGroup = pupil.getForm().get().getYearGroup();
-			List<PupilTargetEntity> targets = PupilTargetInformation.findCurrentTargetInformationByPupil(pupil, null);
-			for (PupilTargetEntity target : targets)
-			{
-				HashMap<String, Object> finalParmeters = (HashMap<String, Object>)parameter.clone();
-				finalParmeters.put("yearGroup", currentYearGroup);
+			try {
+				HashMap<String, Object> parameter = new HashMap<String, Object>();
+				parameter.put("recordType", typeParam);
+				StringWriter data = new StringWriter();
 				
-				List<TargetProgressEntity> progresses = TargetProgressInformation.findProgressInformationByAncestor
-						(Key.create(target), finalParmeters);
+				CsvWriter writer = new CsvWriter (data, ',');
+				writer.write("Pupil Email");
+				writer.write("Pupil Name");
+				writer.write("Year Group");
+				writer.write("Subject");
+				writer.write("3 Levels");
+				writer.write("4 Levels");
+				writer.write("5 Levels");
+				writer.write("Current Level");
+				writer.write("Target");
+				writer.endRecord();
 				
-				for (TargetProgressEntity progress : progresses)
+				log.info("About to search for students");
+				List<PupilEntity> pupils = null;
+				
+				if (year != -1)
 				{
-					writer.write(pupil.getEmail());
-					writer.write(pupil.getName());
-					writer.write(Integer.toString(progress.getYearGroup()));
-					writer.write(target.getSubject().getName());
-					writer.write(target.getThreeLevelsTargetGrade());
-					writer.write(target.getFourLevelsTargetGrade());
-					writer.write(target.getFiveLevelsTargetGrade());
-					writer.write(progress.getCurrentLevel());
-					writer.write(progress.getNextSteps());
-					writer.endRecord();
+					pupils = PupilInformation.getPupilsByIntakeYear(year);
 				}
-			}
+				else
+				{
+					if (formId != null)
+					{
+						pupils = PupilInformation.getPupilsByForm(formId);
+					}
+					else
+					{
+						pupils = PupilInformation.getPupils();
+					}
+				}
+				
+				log.info("Processing " + pupils.size() + " pupils");
+				for (PupilEntity pupil : pupils)
+				{
+					int currentYearGroup = pupil.getForm().get().getYearGroup();
+					List<PupilTargetEntity> targets = PupilTargetInformation.findCurrentTargetInformationByPupil(pupil, null);
+					for (PupilTargetEntity target : targets)
+					{
+						HashMap<String, Object> finalParmeters = (HashMap<String, Object>)parameter.clone();
+						finalParmeters.put("yearGroup", currentYearGroup);
+						
+						List<TargetProgressEntity> progresses = TargetProgressInformation.findProgressInformationByAncestor
+								(Key.create(target), finalParmeters);
+						
+						for (TargetProgressEntity progress : progresses)
+						{
+							writer.write(pupil.getEmail());
+							writer.write(pupil.getName());
+							writer.write(Integer.toString(progress.getYearGroup()));
+							writer.write(target.getSubject().getName());
+							writer.write(target.getThreeLevelsTargetGrade());
+							writer.write(target.getFourLevelsTargetGrade());
+							writer.write(target.getFiveLevelsTargetGrade());
+							writer.write(progress.getCurrentLevel());
+							writer.write(progress.getNextSteps());
+							writer.endRecord();
+						}
+					}
+				}
+				writer.close();
+				
+				log.info("Creating the mail message");
+				Session session = Session.getDefaultInstance(new Properties(), null);
+	            Message msg = new MimeMessage(session);
+	            msg.setFrom(new InternetAddress("bcullen@rossettlearning.co.uk", "3Rs Admin"));
+	            msg.addRecipient(Message.RecipientType.TO,
+	                             new InternetAddress("bcullen@rossettschool.co.uk", "Mr. Cullen"));
+	            msg.setSubject("Export of 3Rs Data");
+	            
+	            Multipart mp = new MimeMultipart();
+	
+	            MimeBodyPart textPart = new MimeBodyPart();
+	            textPart.setContent("Please find the requested data attached.", "text/plain");
+	            mp.addBodyPart(textPart);
+	
+	            MimeBodyPart attachment = new MimeBodyPart();
+	            attachment.setFileName("export.csv");
+	            attachment.setContent(data.toString(), "text/comma-separated-values");
+	            mp.addBodyPart(attachment);
+	
+	            log.info("Sending the mail message");
+	            msg.setContent(mp);
+	            Transport.send(msg);
+	
+	        } catch (Exception ex) {
+	            // ...
+	        	log.severe(ex.toString());
+	        }
 		}
-		writer.close();
-		
-		Session session = Session.getDefaultInstance(new Properties(), null);
-		try {
-            Message msg = new MimeMessage(session);
-            msg.setFrom(new InternetAddress("bcullen@rossettlearning.co.uk", "3Rs Admin"));
-            msg.addRecipient(Message.RecipientType.TO,
-                             new InternetAddress("bcullen@rossettschool.co.uk", "Mr. Cullen"));
-            msg.setSubject("Export of 3Rs Data");
-            
-            Multipart mp = new MimeMultipart();
-
-            MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setContent("Please find the requested data attached.", "text/plain");
-            mp.addBodyPart(textPart);
-
-            MimeBodyPart attachment = new MimeBodyPart();
-            attachment.setFileName("export.csv");
-            attachment.setContent(data.toString(), "text/comma-separated-values");
-            mp.addBodyPart(attachment);
-
-            msg.setContent(mp);
-            Transport.send(msg);
-
-        } catch (Exception ex) {
-            // ...
-        }
 	}
 	
 	@Override
