@@ -1,35 +1,41 @@
 package net.mrcullen.targetrecording.servlets;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.csvreader.CsvWriter;
+import com.google.appengine.api.ThreadManager;
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.Ref;
 
-import net.mrcullen.targetrecording.GradeHelper;
-import net.mrcullen.targetrecording.GsonService;
-import net.mrcullen.targetrecording.PupilRecordHelper;
 import net.mrcullen.targetrecording.UrlPathHelper;
 import net.mrcullen.targetrecording.entities.FormEntity;
 import net.mrcullen.targetrecording.entities.PupilEntity;
 import net.mrcullen.targetrecording.entities.PupilTargetEntity;
-import net.mrcullen.targetrecording.entities.SubjectEntity;
 import net.mrcullen.targetrecording.entities.TargetProgressEntity;
-import net.mrcullen.targetrecording.entities.TeacherEntity;
-import net.mrcullen.targetrecording.process.FormInformation;
+
 import net.mrcullen.targetrecording.process.PupilInformation;
 import net.mrcullen.targetrecording.process.PupilTargetInformation;
 import net.mrcullen.targetrecording.process.TargetProgressInformation;
+
+import javax.activation.DataHandler;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 @SuppressWarnings("serial")
 public class ExportServlet extends AuthenticatedServletRequest {
@@ -62,7 +68,6 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		}
 		
 		Key<FormEntity> formId = UrlPathHelper.getKeyFromPath(formParam, FormEntity.class.getSimpleName());
-		HashMap<String, Object> parameter = new HashMap<String, Object>();
 		
 		if (typeParam == null)
 		{
@@ -70,69 +75,126 @@ public class ExportServlet extends AuthenticatedServletRequest {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		parameter.put("recordType", typeParam);
 		
-		resp.setContentType("text/csv");
-		resp.setHeader("Content-Disposition", "attachment; filename=progressexport.csv");
 		
-		CsvWriter writer = new CsvWriter (resp.getWriter(), ',');
-		writer.write("Pupil Email");
-		writer.write("Pupil Name");
-		writer.write("Year Group");
-		writer.write("Subject");
-		writer.write("3 Levels");
-		writer.write("4 Levels");
-		writer.write("5 Levels");
-		writer.write("Current Level");
-		writer.write("Target");
-		writer.endRecord();
+		// resp.setContentType("text/csv");
+		// resp.setHeader("Content-Disposition", "attachment; filename=progressexport.csv");
+		resp.getWriter().write("Processing your request. Please check your email in a few minutes.");
 		
-		List<PupilEntity> pupils = null;
+		Thread thread = ThreadManager.createBackgroundThread(new ExportClass(year, formId, typeParam));
+		thread.start();
+	}
+	
+	private static class ExportClass implements Runnable {
 		
-		if (year != -1)
+		protected int year;
+		protected Key<FormEntity> formId;
+		protected String typeParam;
+		
+		public ExportClass (int year, Key<FormEntity> formId, String typeParam)
 		{
-			pupils = PupilInformation.getPupilsByIntakeYear(year);
-		}
-		else
-		{
-			if (formId != null)
-			{
-				pupils = PupilInformation.getPupilsByForm(formId);
-			}
-			else
-			{
-				pupils = PupilInformation.getPupils();
-			}
+			this.year = year;
+			this.formId = formId;
+			this.typeParam = typeParam;
 		}
 		
-		for (PupilEntity pupil : pupils)
+		public void run ()
 		{
-			int currentYearGroup = pupil.getForm().get().getYearGroup();
-			List<PupilTargetEntity> targets = PupilTargetInformation.findCurrentTargetInformationByPupil(pupil, null);
-			for (PupilTargetEntity target : targets)
-			{
-				HashMap<String, Object> finalParmeters = (HashMap<String, Object>)parameter.clone();
-				finalParmeters.put("yearGroup", currentYearGroup);
+			try {
+				HashMap<String, Object> parameter = new HashMap<String, Object>();
+				parameter.put("recordType", typeParam);
+				StringWriter data = new StringWriter();
 				
-				List<TargetProgressEntity> progresses = TargetProgressInformation.findProgressInformationByAncestor
-						(Key.create(target), finalParmeters);
+				CsvWriter writer = new CsvWriter (data, ',');
+				writer.write("Pupil Email");
+				writer.write("Pupil Name");
+				writer.write("Year Group");
+				writer.write("Subject");
+				writer.write("3 Levels");
+				writer.write("4 Levels");
+				writer.write("5 Levels");
+				writer.write("Current Level");
+				writer.write("Target");
+				writer.endRecord();
 				
-				for (TargetProgressEntity progress : progresses)
+				log.info("About to search for students");
+				List<PupilEntity> pupils = null;
+				
+				if (year != -1)
 				{
-					writer.write(pupil.getEmail());
-					writer.write(pupil.getName());
-					writer.write(Integer.toString(progress.getYearGroup()));
-					writer.write(target.getSubject().getName());
-					writer.write(target.getThreeLevelsTargetGrade());
-					writer.write(target.getFourLevelsTargetGrade());
-					writer.write(target.getFiveLevelsTargetGrade());
-					writer.write(progress.getCurrentLevel());
-					writer.write(progress.getNextSteps());
-					writer.endRecord();
+					pupils = PupilInformation.getPupilsByIntakeYear(year);
 				}
-			}
+				else
+				{
+					if (formId != null)
+					{
+						pupils = PupilInformation.getPupilsByForm(formId);
+					}
+					else
+					{
+						pupils = PupilInformation.getPupils();
+					}
+				}
+				
+				log.info("Processing " + pupils.size() + " pupils");
+				for (PupilEntity pupil : pupils)
+				{
+					int currentYearGroup = pupil.getForm().get().getYearGroup();
+					List<PupilTargetEntity> targets = PupilTargetInformation.findCurrentTargetInformationByPupil(pupil, null);
+					
+					for (PupilTargetEntity target : targets)
+					{
+						HashMap<String, Object> finalParmeters = (HashMap<String, Object>)parameter.clone();
+						finalParmeters.put("yearGroup", currentYearGroup);
+						
+						List<TargetProgressEntity> progresses = TargetProgressInformation.findProgressInformationByAncestor
+								(Key.create(target), finalParmeters);
+						
+						for (TargetProgressEntity progress : progresses)
+						{
+							writer.write(pupil.getEmail());
+							writer.write(pupil.getName());
+							writer.write(Integer.toString(progress.getYearGroup()));
+							writer.write(target.getSubject().getName());
+							writer.write(target.getThreeLevelsTargetGrade());
+							writer.write(target.getFourLevelsTargetGrade());
+							writer.write(target.getFiveLevelsTargetGrade());
+							writer.write(progress.getCurrentLevel());
+							writer.write(progress.getNextSteps());
+							writer.endRecord();
+						}
+					}
+				}
+				writer.close();
+				
+				log.info("Creating the mail message");
+				Session session = Session.getDefaultInstance(new Properties(), null);
+	            Message msg = new MimeMessage(session);
+	            msg.setFrom(new InternetAddress("bcullen@rossettlearning.co.uk", "3Rs Admin"));
+	            msg.addRecipient(Message.RecipientType.TO,
+	                             new InternetAddress("bcullen@rossettschool.co.uk", "Mr. Cullen"));
+	            msg.setSubject("Export of 3Rs Data");
+	            
+	            Multipart mp = new MimeMultipart();
+	
+	            MimeBodyPart textPart = new MimeBodyPart();
+	            textPart.setContent("Please find the requested data attached.", "text/plain");
+	            mp.addBodyPart(textPart);
+	
+	            MimeBodyPart attachment = new MimeBodyPart();
+	            attachment.setFileName("export.csv");
+	            attachment.setContent(data.toString(), "text/comma-separated-values");
+	            mp.addBodyPart(attachment);
+	
+	            log.info("Sending the mail message");
+	            msg.setContent(mp);
+	            Transport.send(msg);
+	
+	        } catch (Exception ex) {
+	            // ...
+	        	log.severe(ex.toString());
+	        }
 		}
-		writer.close();
 	}
 	
 	@Override
@@ -140,7 +202,7 @@ public class ExportServlet extends AuthenticatedServletRequest {
 		TreeSet<String> permissions = new TreeSet<String>();
 		permissions.add(ADMIN_PERMISSION);
 		permissions.add(TEACHER_PERMISSION);
-			
+		permissions.add(ALL_PERMISSION);	
 		return permissions;
 	}
 }

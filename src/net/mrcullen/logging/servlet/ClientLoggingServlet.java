@@ -1,6 +1,6 @@
 package net.mrcullen.logging.servlet;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static net.mrcullen.targetrecording.OfyService.ofy;
 
 import java.io.IOException;
 import java.util.StringTokenizer;

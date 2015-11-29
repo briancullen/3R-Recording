@@ -41,7 +41,7 @@ function convertIntakeToYear (intakeYear)
 {
 	var date = new Date();
 	var yearGroup = date.getFullYear() - intakeYear + 7;
-	if (date.getMonth < 8)
+	if (date.getMonth() < 8)
 		yearGroup --;
 	
 	return yearGroup;
