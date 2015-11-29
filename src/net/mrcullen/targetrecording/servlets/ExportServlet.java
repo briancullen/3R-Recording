@@ -141,6 +141,7 @@ public class ExportServlet extends AuthenticatedServletRequest {
 				{
 					int currentYearGroup = pupil.getForm().get().getYearGroup();
 					List<PupilTargetEntity> targets = PupilTargetInformation.findCurrentTargetInformationByPupil(pupil, null);
+					
 					for (PupilTargetEntity target : targets)
 					{
 						HashMap<String, Object> finalParmeters = (HashMap<String, Object>)parameter.clone();

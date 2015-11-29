@@ -164,6 +164,9 @@ var progressHandler = new function () {
 			}
 			$('#recordDialogSubject').selectmenu("refresh");
 			$('#recordDialogSubject').change(progressHandler.updateDialogLevelSelect);
+			
+			$('#recordDialogTargetType').val(selectedType);
+			$('#recordDialogTargetType').selectmenu("refresh");
 
 			var key = $('#recordDialogForm').data('recordkey');
 			if ((key !== undefined) && (key != ""))
@@ -172,7 +175,7 @@ var progressHandler = new function () {
 
 					$('#recordDialogSubject').prop("disabled", "disabled");
 					$('#recordDialogSubject').val(data[key].target.key);
-					$('#recordDialogTarget').val(data[key].progress.nextSteps);
+					$('#recordDialogTarget').val(data[key].progress.nextSteps);					
 					$('#recordDialogSubmit').removeClass("ui-disabled");
 					progressHandler.updateDialogLevelSelect ();
 					$('#recordDialogCurrentLevel').val(data[key].progress.currentLevel);
@@ -202,7 +205,7 @@ var progressHandler = new function () {
 	this.createProgressRecord = function () {
 		var footable = $('#pupilRecordTable').data("footable");
 		$('#recordDialogSubmit').addClass("ui-disabled");
-		var record = { TargetType: selectedType,
+		var record = { TargetType: $('#recordDialogTargetType').val(),
 						TargetYear: selectedYear,
 						TargetCurrentLevel: $('#recordDialogCurrentLevel').val(),
 						TargetProgress: $('#recordDialogTarget').val(),
@@ -215,8 +218,15 @@ var progressHandler = new function () {
 				var footable = $('#pupilRecordTable').data("footable");
 				var tableRow = $('#pupilRecordTable a[data-recordkey="' + data.progress.key + '"]').closest("tr");
 				footable.removeRow(tableRow);
-				addRowToFootable(data);
-				$('#manageProgressNotFoundBanner').hide();
+				
+				if (selectedType == $('#recordDialogTargetType').val())
+				{
+					addRowToFootable(data);
+					$('#manageProgressNotFoundBanner').hide();
+				}
+				else {
+					dataStore.progress.get(selectedYear, selectedType, progressHandler.redrawProgressTable, true);
+				}
 			});
 		}
 		else {

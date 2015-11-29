@@ -156,6 +156,14 @@
 					</select>
 				</div>
 				<div data-role="fieldcontain">
+          <label for="recordDialogCurrentLevel">Target Type:</label>
+          <select name="recordDialogTargetType" id="recordDialogTargetType" data-mini="true">
+            <option value="Responsibility">Responsibility</option>
+            <option value="Resilience">Resilience</option>
+            <option value="Reflection">Reflection</option>
+          </select>
+        </div>
+				<div data-role="fieldcontain">
 				    <label for="recordDialogTarget">Next Steps:</label>
 				    <textarea cols="40" rows="8" name="recordDialogTarget" placeholder="How can you improve to meet your targets?" id="recordDialogTarget"></textarea>
 				</div>
